@@ -20,15 +20,19 @@ namespace EcommercePro.Controllers
         UserManager<ApplicationUser> userManager;
         RoleManager<IdentityRole> roleManager;
         private readonly IFileService _fileService;
+        private IBrand _genaricBrandService;
+
 
         public UserController(Context _dbContext,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IFileService fileService )
+            IFileService fileService ,
+            IBrand genaricBrandService)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
             this._fileService = fileService;
+            this._genaricBrandService = genaricBrandService;
         }
 
         [HttpPost("Resigter")]
@@ -43,6 +47,8 @@ namespace EcommercePro.Controllers
                 {
                     return BadRequest("The Email is Exists Sign in or Register Another Email ");
                 }
+
+            
                 ApplicationUser user1 = new ApplicationUser()
                 {
                     UserName = user.username,
@@ -50,51 +56,31 @@ namespace EcommercePro.Controllers
                     PasswordHash = user.password,
                 };
 
-
                 IdentityResult result = await userManager.CreateAsync(user1, user.password);
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(user1, "User");
 
-                    return Created();
+                if (user.Role == "brand")
+                {
+                    if (user.formFile2 != null)
+                    {
+                        var fileResult = _fileService.SaveImage(user.formFile2);
+                        if (fileResult.Item1 == 1)
+                        {
+                            user.commercialRegistrationImage = fileResult.Item2; // getting name of image
+                        }
+                    }
+
+                    Brand brand = new Brand()
+                    {
+                       TaxNumber= user.TaxNumber ,
+                       commercialRegistrationImage = user.commercialRegistrationImage,
+                       UserId = user1.Id
+                    };
+
+
+                    this._genaricBrandService.Add(brand);
                 }
-                else
-                {
-                    return BadRequest(result.Errors);
-                }
 
 
-
-
-            }
-            else
-            {
-                return BadRequest(ModelState);
-
-            }
-
-        }
-        [HttpPost("AddUser")]
-        public async Task<IActionResult> AddUser(AddUser user)
-        {
-
-            if (ModelState.IsValid)
-            {
-
-                ApplicationUser? Dbuser = await userManager.FindByEmailAsync(user.email);
-                if (Dbuser != null)
-                {
-                    return BadRequest("The Email is Exists Sign in or Register Another Email ");
-                }
-                ApplicationUser user1 = new ApplicationUser()
-                {
-                    UserName = user.username,
-                    Email = user.email,
-                    PasswordHash = user.password,
-                };
-
-
-                IdentityResult result = await userManager.CreateAsync(user1, user.password);
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user1, user.Role);
@@ -117,6 +103,7 @@ namespace EcommercePro.Controllers
             }
 
         }
+        
     
         [HttpPost("Login")]
         public async Task<IActionResult> Login(UserLogin loginInfo)
@@ -275,7 +262,15 @@ namespace EcommercePro.Controllers
 
             if(user != null)
             {
-              IdentityResult result =  await this.userManager.DeleteAsync(user);
+
+                //if this user is brand delete it from brands table and then delete from users table
+                Brand branddb = this._genaricBrandService.getByUSersID(user.Id);
+                if(branddb != null)
+                {
+                    this._genaricBrandService.Delete(branddb.Id);
+                }
+ 
+               IdentityResult result =  await this.userManager.DeleteAsync(user);
                 if (result.Succeeded)
                 {
                     return Ok();

@@ -10,18 +10,16 @@ namespace EcommercePro.Models
         public decimal Price { get; set; }
         public int Quentity { get; set;}
         public string? ImagePath { get; set; }
+
         [ForeignKey("Category")]
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
 
-      //  [ForeignKey("Brand")]
-        public int? BrandId { set; get; }
-        public ApplicationUser? Brand { get; set; }
+       [ForeignKey("Brand")]
+        public int BrandId { set; get; }
+        public Brand? Brand { get; set; }
         public List<ProductReview>? Reviews { get; set; }
         public DateOnly? CreatedDate { get; set; }
-        public class FileUpload
-        {
-            public IFormFile Image { get; set; }
-        }
+        
     }
 }

@@ -26,6 +26,7 @@ namespace EcommercePro.Controllers
        public ActionResult<List<ProductData>> GetAllProducts()
        {
             List<Product> products = this._genaricProductService.GetAll();
+
             List<ProductData> Products = products.Select(Pro => new ProductData()
             {
                 Id = Pro.Id,

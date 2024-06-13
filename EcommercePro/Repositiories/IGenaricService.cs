@@ -9,6 +9,5 @@ namespace EcommercePro.Repositiories
         bool Update(int id, T entity);
         List<T> GetAll();
         void Save();
-        Task SaveChangesAsync();
-    }
+     }
 }

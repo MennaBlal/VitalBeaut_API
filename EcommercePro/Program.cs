@@ -27,6 +27,8 @@ namespace EcommercePro
             #region inject repository 
             builder.Services.AddScoped<IGenaricService<Category>, GenericRepo<Category>>();
             builder.Services.AddScoped<IGenaricService<Product>, GenericRepo<Product> > ();
+            builder.Services.AddScoped<IBrand, BrandRepository>();
+
             #endregion
             builder.Services.AddDbContext<Context>(option =>
             {

@@ -58,9 +58,6 @@ namespace EcommercePro.Repositories
         {
             _dbContext.SaveChanges();
         }
-        public Task SaveChangesAsync()
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }
