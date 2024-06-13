@@ -23,5 +23,6 @@ namespace EcommercePro.Models
         {
             public IFormFile Image { get; set; }
         }
+     
     }
 }

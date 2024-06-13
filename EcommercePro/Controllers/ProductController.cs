@@ -1,49 +1,54 @@
 ﻿using EcommercePro.DTO;
 using EcommercePro.Models;
 using EcommercePro.Repositiories;
+using EcommercePro.Repositories;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using ProductMiniApi.Repository.Implementation;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 namespace EcommercePro.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private IGenaricService<Product> _genaricProductService;
-        IWebHostEnvironment _environment;
+        private readonly IProductRepository _productRepository;
+        private readonly IWebHostEnvironment _environment;
         private readonly IFileService _fileService;
-        public ProductController(IGenaricService<Product> genaricProductService,
-            IWebHostEnvironment environment,
-            IFileService fileService)
+
+        public ProductController(IProductRepository productRepository,
+                                 IWebHostEnvironment environment,
+                                 IFileService fileService)
         {
-            this._genaricProductService = genaricProductService;
+            _productRepository = productRepository;
             _environment = environment;
             _fileService = fileService;
         }
+
         [HttpGet]
-       public ActionResult<List<ProductData>> GetAllProducts()
-       {
-            List<Product> products = this._genaricProductService.GetAll();
+        public ActionResult<List<ProductData>> GetAllProducts()
+        {
+            List<Product> products = _productRepository.GetAll();
             List<ProductData> Products = products.Select(Pro => new ProductData()
             {
                 Id = Pro.Id,
                 Name = Pro.Name,
                 Description = Pro.Description,
-                Price=Pro.Price,
-                Quentity= Pro.Quentity,
-                CategoryId=Pro.CategoryId,
-                image=Pro.ImagePath
-               
+                Price = Pro.Price,
+                Quentity = Pro.Quentity,
+                CategoryId = Pro.CategoryId,
+                image = Pro.ImagePath
             }).ToList();
             return Products;
-       }
+        }
 
-        [HttpGet,Route("{id}")]
+        [HttpGet("{id}")]
         public ActionResult<ProductData> GetProductById(int id)
         {
-            Product product = this._genaricProductService.Get(id);
+            Product product = _productRepository.Get(id);
             if (product == null)
             {
                 return NotFound();
@@ -62,7 +67,79 @@ namespace EcommercePro.Controllers
             return productData;
         }
 
+        [HttpGet("search/byname")]
+        public ActionResult<List<ProductData>> GetProductByName(string name)
+        {
+            List<Product> products = _productRepository.GetProductByName(name);
+            List<ProductData> productData = products.Select(p => new ProductData
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Quentity = p.Quentity,
+                CategoryId = p.CategoryId,
+                image = p.ImagePath,
+                BrandId = p.BrandId ?? 0 // Use 0 as the default value if BrandId is null
+            }).ToList();
+            return productData;
+        }
 
+
+        [HttpGet("search/byprice")]
+        public ActionResult<List<ProductData>> GetProductByPrice(decimal minPrice, decimal maxPrice)
+        {
+            List<Product> products = _productRepository.GetProductByPriceRange(minPrice, maxPrice);
+            List<ProductData> productData = products.Select(p => new ProductData
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Quentity = p.Quentity,
+                CategoryId = p.CategoryId,
+                image = p.ImagePath,
+                BrandId = p.BrandId ?? 0
+            }).ToList();
+            return productData;
+        }
+
+
+        [HttpGet("search/bycategory")]
+        public ActionResult<List<ProductData>> GetProductByCategory(int categoryId)
+        {
+            List<Product> products = _productRepository.GetProductByCategory(categoryId);
+            List<ProductData> productData = products.Select(p => new ProductData
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Quentity = p.Quentity,
+                CategoryId = p.CategoryId,
+                image = p.ImagePath,
+                BrandId = p.BrandId ?? 0
+            }).ToList();
+            return productData;
+        }
+
+        [HttpGet("search/bybrand")]
+        public ActionResult<List<ProductData>> GetProductByBrand(int brandId)
+        {
+            List<Product> products = _productRepository.GetProductByBrand(brandId);
+            List<ProductData> productData = products.Select(p => new ProductData
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Quentity = p.Quentity,
+                CategoryId = p.CategoryId,
+                image = p.ImagePath,
+                BrandId = p.BrandId ?? 0
+            }).ToList();
+            return productData;
+        }
 
         [HttpPost]
         public async Task<IActionResult> PostProduct([FromForm] ProductData newProduct)
@@ -76,17 +153,18 @@ namespace EcommercePro.Controllers
                         var fileResult = _fileService.SaveImage(newProduct.formFile);
                         if (fileResult.Item1 == 1)
                         {
-                            newProduct.image = fileResult.Item2; 
+                            newProduct.image = fileResult.Item2;
                         }
                     }
-                    _genaricProductService.Add(new Product()
+                    _productRepository.Add(new Product()
                     {
                         Name = newProduct.Name,
                         Description = newProduct.Description,
                         Price = newProduct.Price,
                         ImagePath = newProduct.image,
                         Quentity = newProduct.Quentity,
-                        CategoryId = newProduct.CategoryId
+                        CategoryId = newProduct.CategoryId,
+                        BrandId = newProduct.BrandId
                     });
 
                     return Ok();
@@ -99,12 +177,12 @@ namespace EcommercePro.Controllers
             return BadRequest("Cannot Add Product!!");
         }
 
-        [HttpPut]
-        public  async  Task<IActionResult> Update(int id, ProductData updateProduct)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromForm] ProductData updateProduct)
         {
             if (ModelState.IsValid)
             {
-                Product product = this._genaricProductService.Get(id);
+                Product product = _productRepository.Get(id);
                 string oldImage = product.ImagePath;
                 if (updateProduct.formFile != null)
                 {
@@ -114,16 +192,12 @@ namespace EcommercePro.Controllers
                         updateProduct.image = fileResult.Item2;
                     }
                 }
-                if (updateProduct.formFile != null)
+                if (updateProduct.formFile != null && oldImage != null)
                 {
-                    if (oldImage != null)
-                    {
-                        await _fileService.DeleteImage(oldImage);
-
-                    }
+                    await _fileService.DeleteImage(oldImage);
                 }
 
-                var isupdated = this._genaricProductService.Update(id, new Product()
+                var isupdated = _productRepository.Update(id, new Product()
                 {
                     Id = id,
                     Name = updateProduct.Name,
@@ -131,7 +205,8 @@ namespace EcommercePro.Controllers
                     Price = updateProduct.Price,
                     Quentity = updateProduct.Quentity,
                     CategoryId = updateProduct.CategoryId,
-                    ImagePath=updateProduct.image
+                    ImagePath = updateProduct.image,
+                    BrandId = updateProduct.BrandId
                 });
                 if (isupdated)
                 {
@@ -141,17 +216,22 @@ namespace EcommercePro.Controllers
             return BadRequest("The Product Not Updated!!");
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            bool isdeleted = this._genaricProductService.Delete(id);
+            bool isdeleted = _productRepository.Delete(id);
             if (isdeleted)
             {
                 return Ok();
-
             }
             return BadRequest("The Product Not Deleted");
         }
+
+
+
+
+       
+
+
     }
 }
-
