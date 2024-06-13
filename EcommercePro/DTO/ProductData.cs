@@ -21,6 +21,7 @@ namespace EcommercePro.DTO
         public int CategoryId { get; set; }
         [ForeignKey("Brand")]
         public int BrandId { set; get; }
-      
+       
+
     }
 }
