@@ -16,10 +16,11 @@ namespace EcommercePro.DTO
         [Required(ErrorMessage = "The Quantity of Product is Reqiured")]
         public int Quentity { get; set; }
         public string? image {  get; set; }
-        public IFormFile? formFile { get; set; }    
-        [ForeignKey("Category")]
+        public IFormFile? formFile { get; set; }
+        [Required(ErrorMessage = "The Category of Product is Reqiured")]
         public int CategoryId { get; set; }
-        [ForeignKey("Brand")]
+
+        [Required(ErrorMessage = "The Brand of Product is Reqiured")]
         public int BrandId { set; get; }
        
 

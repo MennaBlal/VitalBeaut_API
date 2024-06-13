@@ -24,6 +24,10 @@ public class Program
         builder.Services.AddScoped<IGenaricService<Category>, GenericRepo<Category>>();
         
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
+        builder.Services.AddTransient<IFileService, FileService>();
+        builder.Services.AddScoped<IBrand, BrandRepository>();
+        builder.Services.AddScoped<IContact, RepoContact>();
+        builder.Services.AddScoped<IWebsiteReview, WebsiteReviewRepo>();
 
         #endregion
 
@@ -32,9 +36,7 @@ public class Program
             option.UseSqlServer(builder.Configuration.GetConnectionString("DC"));
         });
 
-        builder.Services.AddTransient<IFileService, FileService>();
-        builder.Services.AddScoped<IContact, RepoContact>();
-        builder.Services.AddScoped<IWebsiteReview, WebsiteReviewRepo>();
+       
 
         #region Authentication
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<Context>();

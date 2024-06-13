@@ -69,15 +69,19 @@ namespace EcommercePro.Controllers
                         }
                     }
 
-                    Brand brand = new Brand()
+                    if (result.Succeeded)
                     {
-                       TaxNumber= user.TaxNumber ,
-                       commercialRegistrationImage = user.commercialRegistrationImage,
-                       UserId = user1.Id
-                    };
+                        Brand brand = new Brand()
+                        {
+                            TaxNumber = user.TaxNumber,
+                            commercialRegistrationImage = user.commercialRegistrationImage,
+                            UserId = user1.Id
+                        };
+                        this._genaricBrandService.Add(brand);
+
+                    }
 
 
-                    this._genaricBrandService.Add(brand);
                 }
 
 

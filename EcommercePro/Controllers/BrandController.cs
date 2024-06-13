@@ -116,21 +116,26 @@ namespace EcommercePro.Controllers
         {
             Brand brand = this._BrandRepository.Get( id);
 
-
-            return new BrandDisplayData()
+            if(brand != null)
             {
-                userId = brand.UserId,
-                BrandName=brand.User.UserName,
-                logoImage=brand.User.Image,
-                commercialRegistrationImage=brand.commercialRegistrationImage,
-                Id=brand.Id,
-                phonenumber1=brand.User.PhoneNumber,
-                phonenumber2= brand.phonenumber2,
-                TaxNumber=brand.TaxNumber,
-                email=brand.User.Email,
-                Address=brand.Address
+                return new BrandDisplayData()
+                {
+                    userId = brand.UserId,
+                    BrandName = brand.User.UserName,
+                    logoImage = brand.User.Image,
+                    commercialRegistrationImage = brand.commercialRegistrationImage,
+                    Id = brand.Id,
+                    phonenumber1 = brand.User.PhoneNumber,
+                    phonenumber2 = brand.phonenumber2,
+                    TaxNumber = brand.TaxNumber,
+                    email = brand.User.Email,
+                    Address = brand.Address
 
-            };
+                };
+            }
+            return BadRequest("Not found The brand");
+
+           
         }
 
     }

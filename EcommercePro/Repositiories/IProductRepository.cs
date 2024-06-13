@@ -1,4 +1,5 @@
-﻿using EcommercePro.Models;
+﻿using EcommercePro.DTO;
+using EcommercePro.Models;
 
 namespace EcommercePro.Repositiories
 {

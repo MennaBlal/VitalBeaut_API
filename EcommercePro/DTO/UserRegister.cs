@@ -25,9 +25,9 @@ namespace EcommercePro.DTO
         
         [MinLength(12, ErrorMessage = "Enter The Invalid Tax Number")]
          [UniqueTax]
-        public string? TaxNumber { set; get; } = "0123456789123";
+        public string? TaxNumber { set; get; }
 
-         public string commercialRegistrationImage { set; get; } = "g.jpg";
+         public string? commercialRegistrationImage { set; get; }
 
         [NotMapped]
         public IFormFile? formFile2 { set; get; }

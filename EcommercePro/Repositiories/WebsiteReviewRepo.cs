@@ -1,4 +1,5 @@
 ﻿using EcommercePro.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcommercePro.Repositiories
 {
@@ -13,7 +14,7 @@ namespace EcommercePro.Repositiories
         }
         public List<WebsiteReview> GetAll()
         {
-            return _dbContext.Set<WebsiteReview>().ToList();
+            return _dbContext.WebsiteReviews.Include(review=>review.User).ToList();
         }
 
         public void Insert(WebsiteReview WebsiteReview)

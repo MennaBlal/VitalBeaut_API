@@ -1,5 +1,7 @@
-﻿using EcommercePro.Models;
+﻿using EcommercePro.DTO;
+using EcommercePro.Models;
 using EcommercePro.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcommercePro.Repositiories
 {
@@ -20,9 +22,7 @@ namespace EcommercePro.Repositiories
 
         public List<Product> GetProductByPriceRange(decimal minPrice, decimal maxPrice)
         {
-            return _context.Products
-                           .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
-                           .ToList();
+            return _context.Products.Where(p => p.Price >= minPrice && p.Price <= maxPrice).ToList();
         }
 
         public List<Product> GetProductByCategory(int categoryId)

@@ -20,10 +20,22 @@ namespace EcommercePro.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public ActionResult<List<DisplayReviews>> GetAll()
         {
             List<WebsiteReview> reviewList = websiteReview.GetAll();
-            return Ok(reviewList);
+
+            List<DisplayReviews> reviews = reviewList.Select(review => new DisplayReviews()
+            {
+                Comment=review.Comment,
+                userimage=review.User.Image,
+                username=review.User.UserName,
+                CreatedDate=(DateOnly)review.CreatedDate,
+                Rating=review.Rating
+
+
+            }).ToList();
+
+            return reviews;
 
         }
 
@@ -38,8 +50,10 @@ namespace EcommercePro.Controllers
                     {
                         Rating = newReview.Rating,
                         Comment = newReview.Comment,
-                        UserId = newReview.UserId
+                        UserId = newReview.UserId,
+                        CreatedDate = DateOnly.FromDateTime(DateTime.Now)
                     });
+                    websiteReview.Save();
 
                     return Ok("Review added successfully.");
                 }
