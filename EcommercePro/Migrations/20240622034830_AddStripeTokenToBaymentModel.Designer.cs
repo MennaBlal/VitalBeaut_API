@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommercePro.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240613143827_init")]
-    partial class init
+    [Migration("20240622034830_AddStripeTokenToBaymentModel")]
+    partial class AddStripeTokenToBaymentModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,7 +93,7 @@ namespace EcommercePro.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("EcommercePro.Models.BrandReport", b =>
+            modelBuilder.Entity("EcommercePro.Models.Brand", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,9 +101,29 @@ namespace EcommercePro.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaxNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("commercialRegistrationImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("phonenumber2")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("BrandReports");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("EcommercePro.Models.Cart", b =>
@@ -267,6 +287,10 @@ namespace EcommercePro.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StripeToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ZipCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -287,11 +311,8 @@ namespace EcommercePro.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BrandId")
+                    b.Property<int>("BrandId")
                         .HasColumnType("int");
-
-                    b.Property<string>("BrandId1")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -310,14 +331,14 @@ namespace EcommercePro.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int>("Quentity")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BrandId1");
+                    b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
@@ -355,19 +376,6 @@ namespace EcommercePro.Migrations
                     b.HasIndex("productId");
 
                     b.ToTable("ProductReviews");
-                });
-
-            modelBuilder.Entity("EcommercePro.Models.SiteReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SiteReports");
                 });
 
             modelBuilder.Entity("EcommercePro.Models.WebsiteReview", b =>
@@ -559,6 +567,17 @@ namespace EcommercePro.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("EcommercePro.Models.Brand", b =>
+                {
+                    b.HasOne("EcommercePro.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("EcommercePro.Models.Cart", b =>
                 {
                     b.HasOne("EcommercePro.Models.ApplicationUser", "User")
@@ -607,9 +626,11 @@ namespace EcommercePro.Migrations
 
             modelBuilder.Entity("EcommercePro.Models.Product", b =>
                 {
-                    b.HasOne("EcommercePro.Models.ApplicationUser", "Brand")
+                    b.HasOne("EcommercePro.Models.Brand", "Brand")
                         .WithMany()
-                        .HasForeignKey("BrandId1");
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EcommercePro.Models.Category", "Category")
                         .WithMany("Products")

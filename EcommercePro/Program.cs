@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using ProductMiniApi.Repository.Implementation;
+using Stripe;
 using System.Text;
 
 public class Program
@@ -14,21 +15,25 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
 
         // Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
+        builder.Services.AddTransient<IPaymentable, PaymentRepo>();
         #region inject repository 
         builder.Services.AddScoped<IGenaricService<Category>, GenericRepo<Category>>();
         
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
-        builder.Services.AddTransient<IFileService, FileService>();
+        builder.Services.AddTransient<IFileService, ProductMiniApi.Repository.Implementation.FileService>();
         builder.Services.AddScoped<IBrand, BrandRepository>();
         builder.Services.AddScoped<IContact, RepoContact>();
         builder.Services.AddScoped<IWebsiteReview, WebsiteReviewRepo>();
-
+        builder.Services.AddScoped<IPaymentable,PaymentRepo>();
+        builder.Services.AddScoped<ICart,CartRepository>();
+        builder.Services.AddScoped<IOrder,OrderRepo>();
         #endregion
 
         builder.Services.AddDbContext<Context>(option =>
@@ -36,7 +41,14 @@ public class Program
             option.UseSqlServer(builder.Configuration.GetConnectionString("DC"));
         });
 
-       
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAngular",
+                builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+        });
 
         #region Authentication
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<Context>();
@@ -70,7 +82,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        app.UseCors("AllowAngular");
         app.UseAuthorization();
 
         app.UseStaticFiles(new StaticFileOptions

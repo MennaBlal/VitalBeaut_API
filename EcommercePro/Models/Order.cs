@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EcommercePro.Models
 {
     public class Order
     {
         public int Id { set; get; }
+        [Required(ErrorMessage = "The Quentity is Reqiured")]
         public int Quentity { set; get; }
+        [Required(ErrorMessage = "The Status is Reqiured")]
         public string Status { set; get; }//Inprocessing - completed
 
         [ForeignKey("product")]

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommercePro.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240612192921_add_Brand_table")]
-    partial class add_Brand_table
+    [Migration("20240620171500_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -184,7 +184,7 @@ namespace EcommercePro.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("CreatedDate")
+                    b.Property<DateOnly?>("CreatedDate")
                         .HasColumnType("date");
 
                     b.Property<string>("Email")
@@ -200,7 +200,6 @@ namespace EcommercePro.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Subject")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -328,7 +327,7 @@ namespace EcommercePro.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int>("Quentity")
                         .HasColumnType("int");
@@ -384,6 +383,7 @@ namespace EcommercePro.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Comment")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly?>("CreatedDate")

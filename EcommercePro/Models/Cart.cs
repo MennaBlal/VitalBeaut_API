@@ -5,7 +5,7 @@ namespace EcommercePro.Models
     public class Cart
     {
         public int Id { get; set; }
-        public int Quentity { get; set; }
+        public int Quantity { get; set; }
 
         [ForeignKey("product")]
         public int productId { set; get; }
