@@ -19,7 +19,7 @@ namespace EcommercePro.DTO
          
         public string? phonenumber1 { set; get; }
         public string? phonenumber2 { set; get; }
-        [MinLength(12, ErrorMessage = "Enter The Invalid Tax Number")]
+        [Length(12,12, ErrorMessage = "Enter The valid Tax Number")]
         [UniqueTax]
         [Required(ErrorMessage ="Enter The Tax Number")]
         public string TaxNumber { set; get; }

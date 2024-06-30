@@ -1,6 +1,7 @@
 ﻿using EcommercePro.DTO;
 using EcommercePro.Models;
 using EcommercePro.Repositiories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,11 @@ namespace EcommercePro.Controllers
             this.fileService = fileService;
             this.userManager = userManager;
         }
-        [HttpPut]
+
+
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "brand")]
         public async Task<IActionResult> Update(int id , SetBrandData updateData)
         {
             if (ModelState.IsValid)
@@ -84,6 +89,10 @@ namespace EcommercePro.Controllers
                 {
                     return Ok();
                 }
+                else
+                {
+                    return BadRequest(result.Errors);
+                }
 
             }
             return BadRequest("The data Not Updated");
@@ -106,12 +115,14 @@ namespace EcommercePro.Controllers
                 phonenumber2 = brand.phonenumber2,
                 TaxNumber = brand.TaxNumber,
                 email = brand.User.Email,
-                Address = brand.Address
+                Address = brand.Address,
+                status=brand.Status
+
             }).ToList();
 
             return  brandsData;
         }
-        [HttpGet("getBrand:id")]
+        [HttpGet("getBrand/{id}")]
         public ActionResult<BrandDisplayData> getBrand(int id)
         {
             Brand brand = this._BrandRepository.Get( id);
@@ -129,13 +140,43 @@ namespace EcommercePro.Controllers
                     phonenumber2 = brand.phonenumber2,
                     TaxNumber = brand.TaxNumber,
                     email = brand.User.Email,
-                    Address = brand.Address
+                    Address = brand.Address,
+                    status=brand.Status
+
 
                 };
             }
             return BadRequest("Not found The brand");
 
            
+        }
+        [HttpGet("getBrandByUserId/{userId}")]
+        public ActionResult<BrandDisplayData> getBrandByUserId(string userId)
+        {
+            Brand brand = this._BrandRepository.getByUSersID(userId);
+
+            if (brand != null)
+            {
+                return new BrandDisplayData()
+                {
+                    userId = brand.UserId,
+                    BrandName = brand.User.UserName,
+                    logoImage = brand.User.Image,
+                    commercialRegistrationImage = brand.commercialRegistrationImage,
+                    Id = brand.Id,
+                    phonenumber1 = brand.User.PhoneNumber,
+                    phonenumber2 = brand.phonenumber2,
+                    TaxNumber = brand.TaxNumber,
+                    email = brand.User.Email,
+                    Address = brand.Address,
+                    status = brand.Status
+
+
+                };
+            }
+            return BadRequest("Not found The brand");
+
+
         }
 
     }

@@ -16,7 +16,7 @@ namespace EcommercePro.Models
         public DbSet<WebsiteReview> WebsiteReviews { get; set; }//
         public DbSet<ProductReview> ProductReviews { get; set; }
           public DbSet<Brand> Brands { get; set; }
-
+        //public DbSet<AdminNotification> AdminNotifications { get; set; }
 
         public Context(DbContextOptions option) : base(option)
         {

@@ -1,4 +1,5 @@
 ﻿using EcommercePro.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,7 @@ namespace EcommercePro.Controllers
 
         }
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public ActionResult<List<Role>> GetAll()
         {
             List<Role> roles = this.roleManager.Roles.Select(role => new Role()
@@ -28,20 +30,27 @@ namespace EcommercePro.Controllers
 
             return roles;
         }
+
+
         [HttpPost]
-        public async Task<IActionResult> Add(string RoleName)
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Add(Role newRole)
         {
-            if (RoleName != null)
+            if (newRole.Name != null)
             {
                 IdentityRole role = new IdentityRole()
                 {
-                    Name = RoleName
+                    Name = newRole.Name
                 };
               IdentityResult result =  await this.roleManager.CreateAsync(role);
                 if (result.Succeeded)
                 {
                     return Ok();
 
+                }
+                else
+                {
+                    return BadRequest(result.Errors);
                 }
  
             }
@@ -50,15 +59,17 @@ namespace EcommercePro.Controllers
 
             
          }
-        [HttpPut]
-        public async Task<IActionResult> Edit(string id , string RoleName)
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Edit(string id, Role role)
         {
             if (id != null)
             {
              IdentityRole roledb =   await this.roleManager.FindByIdAsync(id);
                 if (roledb != null)
                 {
-                    roledb.Name = RoleName;
+                    roledb.Name = role.Name;
                     var result = await this.roleManager.UpdateAsync(roledb);
                     if (result.Succeeded)
                     {
@@ -73,8 +84,10 @@ namespace EcommercePro.Controllers
             }
             return BadRequest();
         }
-        [HttpDelete]
-        public  async  Task<IActionResult> Delete(string id)
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
+        public async  Task<IActionResult> Delete(string id)
         {
             if(id != null)
             {

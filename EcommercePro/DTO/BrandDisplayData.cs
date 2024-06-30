@@ -16,6 +16,7 @@ namespace EcommercePro.DTO
         public string  logoImage { set; get; }
         public string userId { set; get; }
         public string commercialRegistrationImage { set; get; }
+        public string status { set; get; }
 
         
     }

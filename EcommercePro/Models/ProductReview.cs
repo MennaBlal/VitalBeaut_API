@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EcommercePro.Models
 {
     public class ProductReview
     {
         public int Id { get; set; }
-        public int Rating { get; set; }
+
+        [Required(ErrorMessage = "Enter Rating to Product")]
+        public int Rating { get; set; } = 0;
         public string? Comment { set; get; }
 
         [ForeignKey("product")]

@@ -1,3 +1,4 @@
+using EcommercePro.Hubs;
 using EcommercePro.Models;
 using EcommercePro.Repositiories;
 using EcommercePro.Repositories;
@@ -19,6 +20,8 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddSignalR();
+
 
         #region inject repository 
         builder.Services.AddScoped<IGenaricService<Category>, GenericRepo<Category>>();
@@ -28,7 +31,10 @@ public class Program
         builder.Services.AddScoped<IBrand, BrandRepository>();
         builder.Services.AddScoped<IContact, RepoContact>();
         builder.Services.AddScoped<IWebsiteReview, WebsiteReviewRepo>();
-
+        builder.Services.AddScoped<IwishList, WishListService>();
+        builder.Services.AddScoped<IproductReview, ProductReviewService>();
+        builder.Services.AddTransient<IEmailService, EmailService>();
+ 
         #endregion
 
         builder.Services.AddDbContext<Context>(option =>
@@ -36,10 +42,22 @@ public class Program
             option.UseSqlServer(builder.Configuration.GetConnectionString("DC"));
         });
 
-       
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+             });
+        });
 
         #region Authentication
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<Context>();
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(option =>
+        {
+            //option.SignIn.RequireConfirmedEmail = true;
+        }
+        ).AddEntityFrameworkStores<Context>();
 
         builder.Services.AddAuthentication(options =>
         {
@@ -52,14 +70,15 @@ public class Program
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
             {
                 ValidateIssuer = true,
-                ValidIssuer = "http://localhost:5116",
+                ValidIssuer = "http://localhost:5261",
                 ValidateAudience = true,
                 ValidAudience = "http://localhost:4200",
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes("1s3r4e5g6h7j81s3r4e5g6h7j81s3r4e5g6h7j81s3r4e5g6h7j8")
+                    Encoding.UTF8.GetBytes("1s3r4e5g6h7j81s3r4e5g6h7j81s3r4e5g6h7j81s3r4e5g6h7j89")
                 )
             };
         });
+
         #endregion
 
         var app = builder.Build();
@@ -70,8 +89,13 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseCors();
+
+        app.UseAuthentication();
 
         app.UseAuthorization();
+
+        app.MapHub<NotificationHub>("/NotificationHub");
 
         app.UseStaticFiles(new StaticFileOptions
         {

@@ -1,6 +1,7 @@
 ﻿using EcommercePro.DTO;
 using EcommercePro.Models;
 using EcommercePro.Repositiories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +25,7 @@ namespace EcommercePro.Controllers
         {
             List<WebsiteReview> reviewList = websiteReview.GetAll();
 
-            List<DisplayReviews> reviews = reviewList.Select(review => new DisplayReviews()
+            List<DisplayReviews> reviews = reviewList.OrderBy(r=>r.CreatedDate).Select(review => new DisplayReviews()
             {
                 Comment=review.Comment,
                 userimage=review.User.Image,
@@ -38,8 +39,8 @@ namespace EcommercePro.Controllers
             return reviews;
 
         }
-
         [HttpPost]
+        [Authorize]
         public IActionResult Add(WebsiteDTO newReview)
         {
             if (ModelState.IsValid)
@@ -55,7 +56,7 @@ namespace EcommercePro.Controllers
                     });
                     websiteReview.Save();
 
-                    return Ok("Review added successfully.");
+                    return Ok();
                 }
                 catch (Exception ex)
                 {

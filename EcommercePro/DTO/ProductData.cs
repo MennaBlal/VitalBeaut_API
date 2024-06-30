@@ -20,8 +20,7 @@ namespace EcommercePro.DTO
         [Required(ErrorMessage = "The Category of Product is Reqiured")]
         public int CategoryId { get; set; }
 
-        [Required(ErrorMessage = "The Brand of Product is Reqiured")]
-        public int BrandId { set; get; }
+         
        
 
     }

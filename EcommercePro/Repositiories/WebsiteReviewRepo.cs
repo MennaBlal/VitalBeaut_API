@@ -24,7 +24,7 @@ namespace EcommercePro.Repositiories
                 throw new ArgumentNullException(nameof(WebsiteReview));
             }
 
-            _dbContext.Add(WebsiteReview);
+            _dbContext.WebsiteReviews.Add(WebsiteReview);
 
         }
 

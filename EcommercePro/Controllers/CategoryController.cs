@@ -1,6 +1,7 @@
 ﻿using EcommercePro.DTO;
 using EcommercePro.Models;
 using EcommercePro.Repositiories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -29,11 +30,14 @@ namespace EcommercePro.Controllers
 
             return Categories;
         }
+
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public IActionResult Add(CategoryData newCategory)
         {
         if(ModelState.IsValid)
             {
+                
                 try
                 {              
                     this._genaricService.Add(new Category()
@@ -51,7 +55,9 @@ namespace EcommercePro.Controllers
             }  
                 return BadRequest("Not Add The Category");
         }
+
         [HttpPut]
+        [Authorize(Roles = "admin")]
         public IActionResult Update(int id, CategoryData updateCategory)
         {
             if (ModelState.IsValid)
@@ -73,7 +79,9 @@ namespace EcommercePro.Controllers
             return BadRequest("The Category Not Updated");
 
         }
+
         [HttpDelete]
+        [Authorize(Roles = "admin")]
         public IActionResult Delete(int id)
         {
             bool isdeleted = this._genaricService.Delete(id);

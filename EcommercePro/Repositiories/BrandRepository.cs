@@ -50,6 +50,7 @@ namespace EcommercePro.Repositiories
                 existingEntity.TaxNumber = entity.TaxNumber;
                 existingEntity.UserId = entity.UserId;
                 existingEntity.commercialRegistrationImage = entity.commercialRegistrationImage;
+             
                 _dbContext.SaveChanges();
                 return true;
             }
@@ -61,7 +62,7 @@ namespace EcommercePro.Repositiories
         }
         public Brand getByUSersID(string USID)
         {
-            Brand brand = _dbContext.Brands.FirstOrDefault(b => b.UserId == USID);
+            Brand brand = _dbContext.Brands.Include(b=>b.User).FirstOrDefault(b => b.UserId == USID);
             return brand;
         }
        

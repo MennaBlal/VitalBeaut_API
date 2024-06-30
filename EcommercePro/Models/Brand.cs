@@ -13,6 +13,7 @@ namespace EcommercePro.Models
         public string TaxNumber { set; get; }
 
          public string commercialRegistrationImage { set; get; }
+        public string Status { set; get; }
 
         [NotMapped]
         public IFormFile formFile2 { set; get; }
