@@ -23,7 +23,8 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddSignalR();
-
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
+        builder.Services.AddTransient<IPaymentable, PaymentRepo>();
 
         #region inject repository 
         builder.Services.AddScoped<IGenaricService<Category>, GenericRepo<Category>>();
@@ -36,7 +37,10 @@ public class Program
         builder.Services.AddScoped<IwishList, WishListService>();
         builder.Services.AddScoped<IproductReview, ProductReviewService>();
         builder.Services.AddTransient<IEmailService, EmailService>();
- 
+       
+        builder.Services.AddScoped<IPaymentable, PaymentRepo>();
+        builder.Services.AddScoped<ICart, CartRepository>();
+        builder.Services.AddScoped<IOrder, OrderRepo>();
         #endregion
 
         builder.Services.AddDbContext<Context>(option =>
