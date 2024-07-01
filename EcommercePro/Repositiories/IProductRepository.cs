@@ -1,5 +1,6 @@
 ﻿using EcommercePro.DTO;
 using EcommercePro.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcommercePro.Repositiories
 {
@@ -10,8 +11,8 @@ namespace EcommercePro.Repositiories
         List<Product> GetProductByCategory(int categoryId);
         List<Product> GetProductByBrand(int brandId);
 
-       Result ProductPagined(int pageIndex, int pageSize);
-       Result ProductPaginedByBrand(int brandId ,int pageIndex, int pageSize);
+       //Result ProductPagined(int pageIndex, int pageSize);
+       //Result ProductPaginedByBrand(int brandId ,int pageIndex, int pageSize);
 
 
     }

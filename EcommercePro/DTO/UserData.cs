@@ -20,7 +20,7 @@ namespace EcommercePro.DTO
         public string Id { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
-        public string Role { get; set; }
+        //public string Role { get; set; }
         public string? password { get; set; }
         public string? Image { set; get; }
         [NotMapped]

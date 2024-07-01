@@ -7,9 +7,10 @@ namespace EcommercePro.Models
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            var price = (decimal?)value;
 
-            if(price <= 0) 
+            decimal? price = (decimal?)value;
+
+            if (price <= 0)
             {
                 return new ValidationResult("The product price can not be less that 0!");
             }

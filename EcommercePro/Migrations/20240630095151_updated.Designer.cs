@@ -4,6 +4,7 @@ using EcommercePro.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommercePro.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240630095151_updated")]
+    partial class updated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,14 +174,8 @@ namespace EcommercePro.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("imagepath")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -333,11 +330,8 @@ namespace EcommercePro.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Discount")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -356,28 +350,6 @@ namespace EcommercePro.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("EcommercePro.Models.ProductImages", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("imagePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("productId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("productId");
-
-                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("EcommercePro.Models.ProductReview", b =>
@@ -678,17 +650,6 @@ namespace EcommercePro.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("EcommercePro.Models.ProductImages", b =>
-                {
-                    b.HasOne("EcommercePro.Models.Product", "product")
-                        .WithMany("Images")
-                        .HasForeignKey("productId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("product");
-                });
-
             modelBuilder.Entity("EcommercePro.Models.ProductReview", b =>
                 {
                     b.HasOne("EcommercePro.Models.ApplicationUser", "User")
@@ -796,8 +757,6 @@ namespace EcommercePro.Migrations
 
             modelBuilder.Entity("EcommercePro.Models.Product", b =>
                 {
-                    b.Navigation("Images");
-
                     b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618

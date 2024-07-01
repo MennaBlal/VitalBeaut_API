@@ -85,6 +85,7 @@ namespace EcommercePro.Controllers
                                 await this._hubContext.Clients.User(Admin[0].Id).SendAsync("SendNotification", user);
 
                             }
+
                             await AddAsBrand(user, userdb.Id);
 
 
@@ -149,7 +150,7 @@ namespace EcommercePro.Controllers
                     TaxNumber = userData.TaxNumber,
                     commercialRegistrationImage = userData.commercialRegistrationImage,
                     UserId = userId,
-                    Status = "pending"
+                    Status = "Pending"
                 };
 
                 this._genaricBrandService.Add(brand);
@@ -335,14 +336,20 @@ namespace EcommercePro.Controllers
                     user.PhoneNumber = userData.Phone;
                     user.Email = userData.Email;
                     if(userData.password != null) {
-                        var token = await this.userManager.GeneratePasswordResetTokenAsync(user);
 
-                        IdentityResult result1 =  await this.userManager.ChangePasswordAsync(user, token, userData.password);
+                        string resetToken = await this.userManager.GeneratePasswordResetTokenAsync(user);
 
-                        if (!result1.Succeeded)
+                        IdentityResult result1 = await this.userManager.ResetPasswordAsync(user, resetToken, userData.password);
+
+                        if (result1.Succeeded)
+                        {
+                            return Ok();
+                        }
+                        else
                         {
                             return BadRequest(result1.Errors);
                         }
+                        
  
                     }
 
@@ -356,6 +363,7 @@ namespace EcommercePro.Controllers
                             user.Image = fileResult.Item2; // getting name of image
                         }
                     }
+
                     if (userData.formFile != null)
                     {
                         if(oldimage != null)
@@ -364,21 +372,13 @@ namespace EcommercePro.Controllers
 
                         }
                     }
+
                     IdentityResult result = await userManager.UpdateAsync(user);
+
                     if (result.Succeeded)
                     {
  
-                      IList<string>  roles= await this.userManager.GetRolesAsync(user);
-                        string oldRole = roles.FirstOrDefault();
-
-                        if(oldRole != userData.Role)
-                        {
-                           //await this.userManager.RemoveFromRoleAsync(user, oldRole);
-                            
-                           await this.userManager.AddToRoleAsync(user,userData.Role);
-
-                         }
-                    
+                      
                         return Ok();
                          
 

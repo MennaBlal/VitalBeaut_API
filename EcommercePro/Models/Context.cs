@@ -8,6 +8,7 @@ namespace EcommercePro.Models
     {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductImages> ProductImages { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Contact> Contacts { get; set; }
@@ -16,11 +17,20 @@ namespace EcommercePro.Models
         public DbSet<WebsiteReview> WebsiteReviews { get; set; }//
         public DbSet<ProductReview> ProductReviews { get; set; }
           public DbSet<Brand> Brands { get; set; }
+
         //public DbSet<AdminNotification> AdminNotifications { get; set; }
 
         public Context(DbContextOptions option) : base(option)
         {
 
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18, 2)");
+        }
+
     }
 }

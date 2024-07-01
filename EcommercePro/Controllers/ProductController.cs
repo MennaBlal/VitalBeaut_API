@@ -45,110 +45,104 @@ namespace EcommercePro.Controllers
                 Price = Pro.Price,
                 Quentity = Pro.Quentity,
                 CategoryId = Pro.CategoryId,
-                image = Pro.ImagePath
             }).ToList();
             return Products;
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<ProductData> GetProductById(int id)
-        {
-            Product product = _productRepository.Get(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
+        //[HttpGet("{id}")]
+        //public ActionResult<ProductData> GetProductById(int id)
+        //{
+        //    Product product = _productRepository.Get(id);
+        //    if (product == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            ProductData productData = new ProductData()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Quentity = product.Quentity,
-                CategoryId = product.CategoryId,
-                image = product.ImagePath
+        //    ProductData productData = new ProductData()
+        //    {
+        //        Id = product.Id,
+        //        Name = product.Name,
+        //        Description = product.Description,
+        //        Price = product.Price,
+        //        Quentity = product.Quentity,
+        //        CategoryId = product.CategoryId,
 
-            };
+        //    };
 
-            return productData;
-        }
+        //    return productData;
+        //}
 
-        [HttpGet("search/byname")]
-        public ActionResult<List<ProductData>> GetProductByName(string name)
-        {
-            List<ProductData> products = _productRepository.GetProductByName(name).Select(product=>new ProductData()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Quentity = product.Quentity,
-                CategoryId = product.CategoryId,
-                image = product.ImagePath
+        //[HttpGet("search/byname")]
+        //public ActionResult<List<ProductData>> GetProductByName(string name)
+        //{
+        //    List<ProductData> products = _productRepository.GetProductByName(name).Select(product => new ProductData()
+        //    {
+        //        Id = product.Id,
+        //        Name = product.Name,
+        //        Description = product.Description,
+        //        Price = product.Price,
+        //        Quentity = product.Quentity,
+        //        CategoryId = product.CategoryId,
 
-            }).ToList();
-
-           
-            return products;
-        }
+        //    }).ToList();
 
 
-        [HttpGet("search/byprice")]
-        public ActionResult<List<ProductData>> GetProductByPrice(decimal minPrice, decimal maxPrice)
-        {
-            List<ProductData> products = _productRepository.GetProductByPriceRange(minPrice, maxPrice).Select(product => new ProductData()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Quentity = product.Quentity,
-                CategoryId = product.CategoryId,
-                image = product.ImagePath
-
-            }).ToList();
-
-            return products;
-        }
+        //    return products;
+        //}
 
 
-        [HttpGet("search/bycategory")]
-        public ActionResult<List<ProductData>> GetProductByCategory(int categoryId)
-        {
-            List<ProductData> products = _productRepository.GetProductByCategory(categoryId).Select(product => new ProductData()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Quentity = product.Quentity,
-                CategoryId = product.CategoryId,
-                image = product.ImagePath
+        //[HttpGet("search/byprice")]
+        //public ActionResult<List<ProductData>> GetProductByPrice(decimal minPrice, decimal maxPrice)
+        //{
+        //    List<ProductData> products = _productRepository.GetProductByPriceRange(minPrice, maxPrice).Select(product => new ProductData()
+        //    {
+        //        Id = product.Id,
+        //        Name = product.Name,
+        //        Description = product.Description,
+        //        Price = product.Price,
+        //        Quentity = product.Quentity,
+        //        CategoryId = product.CategoryId,
 
-            }).ToList();
+        //    }).ToList();
 
-            return products;
-        }
-
-        [HttpGet("search/bybrand")]
-        public ActionResult<List<ProductData>> GetProductByBrand(int brandId)
-        {
-            List<ProductData> products = _productRepository.GetProductByBrand(brandId).Select(product => new ProductData()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                Quentity = product.Quentity,
-                CategoryId = product.CategoryId,
-                image=product.ImagePath
-                //BrandId = product.BrandId
-            }).ToList();
+        //    return products;
+        //}
 
 
-            return products;
-        }
+        //[HttpGet("search/bycategory")]
+        //public ActionResult<List<ProductData>> GetProductByCategory(int categoryId)
+        //{
+        //    List<ProductData> products = _productRepository.GetProductByCategory(categoryId).Select(product => new ProductData()
+        //    {
+        //        Id = product.Id,
+        //        Name = product.Name,
+        //        Description = product.Description,
+        //        Price = product.Price,
+        //        Quentity = product.Quentity,
+        //        CategoryId = product.CategoryId,
+
+        //    }).ToList();
+
+        //    return products;
+        //}
+
+        //[HttpGet("search/bybrand")]
+        //public ActionResult<List<ProductData>> GetProductByBrand(int brandId)
+        //{
+        //    List<ProductData> products = _productRepository.GetProductByBrand(brandId).Select(product => new ProductData()
+        //    {
+        //        Id = product.Id,
+        //        Name = product.Name,
+        //        Description = product.Description,
+        //        Price = product.Price,
+        //        Quentity = product.Quentity,
+        //        CategoryId = product.CategoryId,
+        //        //BrandId = product.BrandId
+        //    }).ToList();
+
+
+        //    return products;
+        //}
 
 
         [HttpPost]
@@ -159,30 +153,39 @@ namespace EcommercePro.Controllers
             {
                 try
                 {
-                    if (newProduct.formFile != null)
-                    {
-                        var fileResult = _fileService.SaveImage(newProduct.formFile);
-                        if (fileResult.Item1 == 1)
-                        {
-                            newProduct.image = fileResult.Item2;
-                        }
-                    }
-                     string userid = User.FindFirst("Id").Value;
+                    string userid = User.FindFirst("Id").Value;
+
                     if (userid != null)
                     {
                         int brandId = this._brandService.getByUSersID(userid).Id;
 
-                        _productRepository.Add(new Product()
+                        Product newproductData = new Product()
                         {
                             Name = newProduct.Name,
                             Description = newProduct.Description,
                             Price = newProduct.Price,
-                            ImagePath = newProduct.image,
                             Quentity = newProduct.Quentity,
                             CategoryId = newProduct.CategoryId,
                             BrandId = brandId,
-                            CreatedDate= DateOnly.FromDateTime(DateTime.Now)
-                        });
+                            Discount = newProduct.Discount,
+                            CreatedDate = DateOnly.FromDateTime(DateTime.Now)
+                        };
+
+                        _productRepository.Add(newproductData);
+
+                        if (newProduct.formFiles != null && newProduct.formFiles.Count > 0)
+                        {
+                            foreach (var file in newProduct.formFiles)
+                            {
+                                var fileResult = _fileService.SaveImage(file);
+                                if (fileResult.Item1 == 1)
+                                {
+
+                                    this._fileService.SaveImagesToDB(newproductData.Id, fileResult.Item2);
+                                }
+                            }
+                            this._fileService.SaveChanges();
+                        }
 
                         return Ok();
 
@@ -204,20 +207,7 @@ namespace EcommercePro.Controllers
             if (ModelState.IsValid)
             {
                 Product product = _productRepository.Get(id);
-                string oldImage = product.ImagePath;
-                updateProduct.image = oldImage;
-                if (updateProduct.formFile != null)
-                {
-                    var fileResult = _fileService.SaveImage(updateProduct.formFile);
-                    if (fileResult.Item1 == 1)
-                    {
-                        updateProduct.image = fileResult.Item2;
-                    }
-                }
-                if (updateProduct.formFile != null && oldImage != null)
-                {
-                    await _fileService.DeleteImage(oldImage);
-                }
+
                 string userid = User.FindFirst("Id").Value;
                 if (userid != null)
                 {
@@ -231,13 +221,34 @@ namespace EcommercePro.Controllers
                         Price = updateProduct.Price,
                         Quentity = updateProduct.Quentity,
                         CategoryId = updateProduct.CategoryId,
-                        ImagePath = updateProduct.image,
-                        BrandId =brandId,
+                        Discount = updateProduct.Discount,
+                        BrandId = brandId,
                         CreatedDate = DateOnly.FromDateTime(DateTime.Now)
 
                     });
                     if (isupdated)
                     {
+                        if (updateProduct.formFiles != null && updateProduct.formFiles.Count > 0)
+                        {
+                            foreach (var file in updateProduct.formFiles)
+                            {
+                                var fileResult = _fileService.SaveImage(file);
+                                if (fileResult.Item1 == 1)
+                                {
+
+                                    this._fileService.SaveImagesToDB(id, fileResult.Item2);
+                                }
+                            }
+                            List<ProductImages> images = this._fileService.GetAll(id);
+                            foreach(var image in images)
+                            {
+                                this._fileService.DeleteImage(image.imagePath);
+                            }
+
+                            this._fileService.DeleteImagesFromDB(id);
+
+                            this._fileService.SaveChanges();
+                        }
                         return Ok();
                     }
                 }
@@ -247,38 +258,40 @@ namespace EcommercePro.Controllers
 
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "brand")]
+       [Authorize(Roles = "brand , admin")]
         public IActionResult Delete(int id)
         {
             bool isdeleted = _productRepository.Delete(id);
             if (isdeleted)
             {
                 return Ok();
+                 
             }
             return BadRequest("The Product Not Deleted");
         }
-        [HttpGet("ProductPagined")]
-        public ActionResult<Result> ProductPagined(int page=1, int pageSize=9)
-        {
 
-            return this._productRepository.ProductPagined(page, pageSize);
+        //[HttpGet("ProductPagined")]
+        //public ActionResult<Result> ProductPagined(int page = 1, int pageSize = 9)
+        //{
+
+            //    return this._productRepository.ProductPagined(page, pageSize);
+
+
+            //}
+            ////[HttpGet("prouctPaginedByBrand")]
+            //public ActionResult<Result> ProductPaginedByBrand(int brandId, int page = 1, int pageSize = 9)
+            //{
+            //   Result Result  = this._productRepository.ProductPaginedByBrand(brandId, page, pageSize);
+
+            //    return Result;
+
+
+
+            //}
+
+
+
 
 
         }
-        [HttpGet("prouctPaginedByBrand")]
-        public ActionResult<Result> ProductPaginedByBrand(int brandId, int page = 1, int pageSize = 9)
-        {
-           Result Result  = this._productRepository.ProductPaginedByBrand(brandId, page, pageSize);
-
-            return Result;
-            
-
-
-        }
-
-
-
-
-
-    }
 }

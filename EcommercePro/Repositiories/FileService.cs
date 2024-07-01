@@ -1,4 +1,5 @@
-﻿using EcommercePro.Repositiories;
+﻿using EcommercePro.Models;
+using EcommercePro.Repositiories;
 using Microsoft.AspNetCore.Hosting;
  
 namespace ProductMiniApi.Repository.Implementation
@@ -6,9 +7,11 @@ namespace ProductMiniApi.Repository.Implementation
     public class FileService : IFileService
     {
         private IWebHostEnvironment environment;
-        public FileService(IWebHostEnvironment env)
+        private Context _dbContext; 
+        public FileService(IWebHostEnvironment env , Context dbContext)
         {
             this.environment = env;
+            this._dbContext = dbContext;
         }
 
         public Tuple<int, string> SaveImage(IFormFile imageFile)
@@ -52,6 +55,33 @@ namespace ProductMiniApi.Repository.Implementation
             var path = Path.Combine(contentPath, $"Uploads", imageFileName);
             if (File.Exists(path))
                 File.Delete(path);
+        }
+
+        public void SaveImagesToDB(int productId, string image)
+        {
+            this._dbContext.ProductImages.Add(new ProductImages()
+            {
+                productId = productId,
+                imagePath = image 
+            });
+        }
+
+        public void DeleteImagesFromDB(int productId)
+        {
+            ProductImages image = _dbContext.ProductImages.FirstOrDefault(Image=>Image.productId ==  productId);
+           if(image != null)
+            {
+                this._dbContext.ProductImages.Remove(image);
+            }
+           
+        }
+        public void SaveChanges()
+        {
+            this._dbContext.SaveChanges();
+        }
+        public List<ProductImages> GetAll(int productId)
+        {
+            return this._dbContext.ProductImages.Where(image => image.productId == productId).ToList();
         }
 
     }
