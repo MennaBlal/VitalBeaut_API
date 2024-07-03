@@ -5,6 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using ProductMiniApi.Repository.Implementation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EcommercePro.Controllers
 {
@@ -12,85 +17,146 @@ namespace EcommercePro.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private IGenaricService<Category> _genaricService;
-       public CategoryController(IGenaricService<Category> genaricService) {
-                 this._genaricService = genaricService;
+        private readonly IGenaricService<Category> _genaricService;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IFileService _fileService;
+
+        public CategoryController(IGenaricService<Category> genaricService,
+                                  IWebHostEnvironment environment,
+                                  IFileService fileService)
+        {
+            _genaricService = genaricService;
+            _environment = environment;
+            _fileService = fileService;
         }
         [HttpGet]
         public ActionResult<List<CategoryData>> GetAll()
         {
-            List<Category> categories = this._genaricService.GetAll();
+            List<Category> categories = _genaricService.GetAll();
 
-            List<CategoryData> Categories = categories.Select(Cat=>new CategoryData()
+            List<CategoryData> categoryDataList = categories.Select(cat => new CategoryData
             {
-                Id=Cat.Id,
-                Name=Cat.Name,
-                Description=Cat.Description
+                Id = cat.Id,
+                Name = cat.Name,
+                Description = cat.Description,
+                ImagePath = cat.imagepath
             }).ToList();
 
-            return Categories;
+            return categoryDataList;
         }
 
-        [HttpPost]
-        [Authorize(Roles = "admin")]
-        public IActionResult Add(CategoryData newCategory)
+        [HttpGet, Route("{id}")]
+        public ActionResult<CategoryData> GetCategoryById(int id)
         {
-        if(ModelState.IsValid)
+            Category category = this._genaricService.Get(id);
+            if (category == null)
             {
-                
-                try
-                {              
-                    this._genaricService.Add(new Category()
-                    {
-                        Name = newCategory.Name,
-                        Description= newCategory.Description
-                    });
-                    return Ok();
-                    
-                }
-                catch (Exception ex)
-                {
-                  return BadRequest(ex.Message);
-                }
-            }  
-                return BadRequest("Not Add The Category");
+                return NotFound();
+            }
+
+            CategoryData categoryData = new CategoryData()
+            {
+                Id=category.Id,
+                Name = category.Name,
+                Description=category.Description,
+                ImagePath=category.imagepath
+            };
+
+            return categoryData;
         }
 
-        [HttpPut]
-        [Authorize(Roles = "admin")]
-        public IActionResult Update(int id, CategoryData updateCategory)
+        //[Authorize(Roles = "admin")]
+        [HttpPost]
+        public async Task<IActionResult> Add([FromForm] CategoryData newCategory)
         {
             if (ModelState.IsValid)
             {
-                var isupdated = this._genaricService.Update(id, new Category()
+                try
                 {
-                    Id = id,
-                     Name = updateCategory.Name,
-                    Description = updateCategory.Description
-                });
-                
-                if (isupdated)
-                {
+                    if (newCategory.FormFile != null)
+                    {
+                        var fileResult = _fileService.SaveImage(newCategory.FormFile);
+                        if (fileResult.Item1 == 1)
+                        {
+                            newCategory.ImagePath = fileResult.Item2;
+                        }
+                    }
+                    _genaricService.Add(new Category
+                    {
+                        Name = newCategory.Name,
+                        Description = newCategory.Description,
+                        imagepath = newCategory.ImagePath
+                    });
 
                     return Ok();
                 }
+                catch (Exception ex)
+                {
 
+                    return BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
             }
-            return BadRequest("The Category Not Updated");
 
+            return BadRequest("Category could not be added");
         }
+        //[Authorize(Roles = "admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromForm] CategoryData updateCategory)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (updateCategory.FormFile != null)
+                    {
+                        var fileResult = _fileService.SaveImage(updateCategory.FormFile);
+                        if (fileResult.Item1 == 1)
+                        {
+                            updateCategory.ImagePath = fileResult.Item2;
+                        }
+                    }
 
-        [HttpDelete]
-        [Authorize(Roles = "admin")]
+                    var isUpdated = _genaricService.Update(id, new Category
+                    {
+                        Id = id,
+                        Name = updateCategory.Name,
+                        Description = updateCategory.Description,
+                        imagepath = updateCategory.ImagePath
+                    });
+
+                    if (isUpdated)
+                    {
+                        return Ok();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
+            }
+
+            return BadRequest("Category could not be updated");
+        }
+        //[Authorize(Roles = "admin")]
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            bool isdeleted = this._genaricService.Delete(id);
-            if (isdeleted)
+            try
             {
-                return Ok();
-
+                bool isDeleted = _genaricService.Delete(id);
+                if (isDeleted)
+                {
+                    return Ok();
+                }
             }
-            return BadRequest("The Category Not Deleted");
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+
+            return BadRequest("Category could not be deleted");
         }
     }
 }
+
+

@@ -10,6 +10,9 @@ namespace EcommercePro.DTO
         [UniqueCategory]
         public string Name { get; set; }
         public string Description { get; set; }
+        public IFormFile FormFile { get; set; }
+
+        public string ImagePath {  get; set; }
 
     }
 }

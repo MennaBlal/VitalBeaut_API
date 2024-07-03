@@ -146,7 +146,7 @@ namespace EcommercePro.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "brand")]
+        //[Authorize(Roles = "brand")]
         public async Task<IActionResult> PostProduct([FromForm] ProductData newProduct)
         {
             if (ModelState.IsValid)
@@ -201,7 +201,7 @@ namespace EcommercePro.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "brand")]
+        //[Authorize(Roles = "brand")]
         public async Task<IActionResult> Update(int id, [FromForm] ProductData updateProduct)
         {
             if (ModelState.IsValid)
@@ -258,7 +258,7 @@ namespace EcommercePro.Controllers
 
 
         [HttpDelete("{id}")]
-       [Authorize(Roles = "brand , admin")]
+       //[Authorize(Roles = "brand , admin")]
         public IActionResult Delete(int id)
         {
             bool isdeleted = _productRepository.Delete(id);
