@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using ProductMiniApi.Repository.Implementation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +33,7 @@ namespace EcommercePro.Controllers
         {
             List<Category> categories = _genaricService.GetAll();
 
-            List<CategoryData> categoryDataList = categories.Select(cat => new CategoryData
+            List<CategoryData> categoryDataList = categories.Where(cat=>cat.IsDeleted == false).Select(cat => new CategoryData
             {
                 Id = cat.Id,
                 Name = cat.Name,
@@ -65,8 +64,9 @@ namespace EcommercePro.Controllers
             return categoryData;
         }
 
-        //[Authorize(Roles = "admin")]
         [HttpPost]
+        [Authorize(Roles = "admin")]
+
         public async Task<IActionResult> Add([FromForm] CategoryData newCategory)
         {
             if (ModelState.IsValid)
@@ -99,8 +99,8 @@ namespace EcommercePro.Controllers
 
             return BadRequest("Category could not be added");
         }
-        //[Authorize(Roles = "admin")]
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(int id, [FromForm] CategoryData updateCategory)
         {
             if (ModelState.IsValid)
@@ -137,8 +137,9 @@ namespace EcommercePro.Controllers
 
             return BadRequest("Category could not be updated");
         }
-        //[Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
+
         public IActionResult Delete(int id)
         {
             try
