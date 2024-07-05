@@ -12,7 +12,6 @@ namespace EcommercePro.Models
         public string? Description { get; set; }
         public List<Product>? Products { get; set; }
         public bool IsDeleted { get; set; } = false;
-
         public string? imagepath { get; set; }
 
     }
