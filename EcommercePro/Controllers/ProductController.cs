@@ -21,133 +21,282 @@ namespace EcommercePro.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IFileService _fileService;
         private readonly IBrand _brandService;
-
+        private readonly IProductImagesRepository _productImagesRepository;
+        private readonly IBrand _brandRepository;
         public ProductController(IProductRepository productRepository,
                                  IWebHostEnvironment environment,
                                  IFileService fileService,
-                                 IBrand brandService)
+                                 IBrand brandService,
+                                 IProductImagesRepository productImagesRepository,
+                                 IBrand brandRepository)
         {
             _productRepository = productRepository;
             _environment = environment;
             _fileService = fileService;
             _brandService = brandService;
+            _productImagesRepository = productImagesRepository;
+            _brandRepository = brandRepository;
         }
 
         [HttpGet]
-        public ActionResult<List<ProductData>> GetAllProducts()
+        public ActionResult GetAllProducts(int pageNumber = 1, int pageSize = 9)
         {
-            List<Product> products = _productRepository.GetAll();
-            List<ProductData> Products = products.Select(Pro => new ProductData()
+            var products = _productRepository.GetAll();
+
+            var pagedProducts = products
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var productDataList = pagedProducts.Select(product =>
             {
-                Id = Pro.Id,
-                Name = Pro.Name,
-                Description = Pro.Description,
-                Price = Pro.Price,
-                Quentity = Pro.Quentity,
-                CategoryId = Pro.CategoryId,
+                // Retrieve the first image for the product
+                var productImage = _productImagesRepository.GetByProductId(product.Id).FirstOrDefault();
+                string imageUrl = productImage?.imagePath;
+
+                return new ProductData
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Quentity = product.Quentity,
+                    CategoryId = product.CategoryId,
+                    ImageUrl = imageUrl // Set the ImageUrl property
+                };
             }).ToList();
-            return Products;
+
+            return Ok(new
+            {
+                TotalCount = products.Where(p => p.IsDeleted == false).Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(products.Where(p => p.IsDeleted == false).Count() / (double)pageSize),
+                Products = productDataList
+            });
         }
 
-        //[HttpGet("{id}")]
-        //public ActionResult<ProductData> GetProductById(int id)
-        //{
-        //    Product product = _productRepository.Get(id);
-        //    if (product == null)
-        //    {
-        //        return NotFound();
-        //    }
 
-        //    ProductData productData = new ProductData()
-        //    {
-        //        Id = product.Id,
-        //        Name = product.Name,
-        //        Description = product.Description,
-        //        Price = product.Price,
-        //        Quentity = product.Quentity,
-        //        CategoryId = product.CategoryId,
+        [HttpGet("getallproductswithimages")]
+        public ActionResult<List<ProductData>> GetAllProductsWithImages(int page = 1, int pageSize = 5)
+        {
+            var products = _productRepository.GetAll();
 
-        //    };
+            // Calculate skip amount based on pagination parameters
+            int skipAmount = (page - 1) * pageSize;
 
-        //    return productData;
-        //}
+            // Paginate the products
+            var paginatedProducts = products
+                .Skip(skipAmount)
+                .Take(pageSize)
+                .Select(product =>
+                {
+                    // Retrieve all images for the product
+                    var productImages = _productImagesRepository.GetByProductId(product.Id);
+                    var imageUrls = productImages.Select(img => img.imagePath).ToList();
 
-        //[HttpGet("search/byname")]
-        //public ActionResult<List<ProductData>> GetProductByName(string name)
-        //{
-        //    List<ProductData> products = _productRepository.GetProductByName(name).Select(product => new ProductData()
-        //    {
-        //        Id = product.Id,
-        //        Name = product.Name,
-        //        Description = product.Description,
-        //        Price = product.Price,
-        //        Quentity = product.Quentity,
-        //        CategoryId = product.CategoryId,
+                    return new ProductData
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Description,
+                        Price = product.Price,
+                        Quentity = product.Quentity,
+                        CategoryId = product.CategoryId,
+                        ImageUrls = imageUrls // Set the ImageUrls property
+                    };
+                }).ToList();
 
-        //    }).ToList();
+            return paginatedProducts;
+        }
 
 
-        //    return products;
-        //}
 
 
-        //[HttpGet("search/byprice")]
-        //public ActionResult<List<ProductData>> GetProductByPrice(decimal minPrice, decimal maxPrice)
-        //{
-        //    List<ProductData> products = _productRepository.GetProductByPriceRange(minPrice, maxPrice).Select(product => new ProductData()
-        //    {
-        //        Id = product.Id,
-        //        Name = product.Name,
-        //        Description = product.Description,
-        //        Price = product.Price,
-        //        Quentity = product.Quentity,
-        //        CategoryId = product.CategoryId,
-
-        //    }).ToList();
-
-        //    return products;
-        //}
 
 
-        //[HttpGet("search/bycategory")]
-        //public ActionResult<List<ProductData>> GetProductByCategory(int categoryId)
-        //{
-        //    List<ProductData> products = _productRepository.GetProductByCategory(categoryId).Select(product => new ProductData()
-        //    {
-        //        Id = product.Id,
-        //        Name = product.Name,
-        //        Description = product.Description,
-        //        Price = product.Price,
-        //        Quentity = product.Quentity,
-        //        CategoryId = product.CategoryId,
+        [HttpGet("{id}")]
+        public ActionResult<ProductData> GetProductById(int id)
+        {
+            var product = _productRepository.Get(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
 
-        //    }).ToList();
+            // Retrieve all images for the product
+            var productImages = _productImagesRepository.GetByProductId(id);
 
-        //    return products;
-        //}
+          
+            // Construct the product data DTO
+            var productData = new ProductData
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Quentity = product.Quentity,
+                CategoryId = product.CategoryId,
+                ImageUrls = productImages.Select(image=>image.imagePath).ToList() // Set the paginated ImageUrls property
+            };
 
-        //[HttpGet("search/bybrand")]
-        //public ActionResult<List<ProductData>> GetProductByBrand(int brandId)
-        //{
-        //    List<ProductData> products = _productRepository.GetProductByBrand(brandId).Select(product => new ProductData()
-        //    {
-        //        Id = product.Id,
-        //        Name = product.Name,
-        //        Description = product.Description,
-        //        Price = product.Price,
-        //        Quentity = product.Quentity,
-        //        CategoryId = product.CategoryId,
-        //        //BrandId = product.BrandId
-        //    }).ToList();
+            return productData;
+        }
 
 
-        //    return products;
-        //}
 
+        [HttpGet("search/byname")]
+        public ActionResult GetProductByName(string name, int pageNumber = 1, int pageSize = 9)
+        {
+            var products = _productRepository.GetProductByName(name);
+
+            var pagedProducts = products
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var productDataList = pagedProducts.Select(product =>
+            {
+                // Retrieve the first image for the product
+                var productImage = _productImagesRepository.GetByProductId(product.Id).FirstOrDefault();
+                string imageUrl = productImage?.imagePath;
+
+                return new ProductData
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Quentity = product.Quentity,
+                    CategoryId = product.CategoryId,
+                    ImageUrl = imageUrl // Set the ImageUrl property
+                };
+            }).ToList();
+
+            return Ok(new
+            {
+                TotalCount = products.Where(p => p.IsDeleted == false),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(products.Where(p => p.IsDeleted == false).Count() / (double)pageSize),
+                Products = productDataList
+            });
+        }
+
+
+
+        [HttpGet("search/byprice")]
+        public ActionResult<List<ProductData>> GetProductByPrice(decimal minPrice, decimal maxPrice)
+        {
+            var products = _productRepository.GetProductByPriceRange(minPrice, maxPrice);
+
+            var productDataList = products.Select(product =>
+            {
+                // Retrieve the first image for the product
+                var productImage = _productImagesRepository.GetByProductId(product.Id).FirstOrDefault();
+                string imageUrl = productImage?.imagePath;
+
+                return new ProductData
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Quentity = product.Quentity,
+                    CategoryId = product.CategoryId,
+                    ImageUrl = imageUrl
+                };
+            }).ToList();
+
+            return productDataList;
+        }
+
+
+        //
+        [HttpGet("search/bycategory")]
+        public ActionResult GetProductByCategory(int categoryId, int pageNumber = 1, int pageSize = 9)
+        {
+            var products = _productRepository.GetProductByCategory(categoryId);
+
+            var pagedProducts = products
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var productDataList = pagedProducts.Select(product =>
+            {
+                // Retrieve the first image for the product
+                var productImage = _productImagesRepository.GetByProductId(product.Id).FirstOrDefault();
+                string imageUrl = productImage.imagePath;
+
+                return new ProductData
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Quentity = product.Quentity,
+                    CategoryId = product.CategoryId,
+                    ImageUrl = imageUrl // Set the ImageUrl property
+                };
+            }).ToList();
+
+            return Ok(new
+            {
+                TotalCount = products.Where(p => p.IsDeleted == false).Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(products.Where(p => p.IsDeleted == false).Count() / (double)pageSize),
+                Products = productDataList
+            });
+        }
+
+        //
+        [HttpGet("search/bybrand")]
+        public ActionResult GetProductByBrand(int brandId, int pageNumber = 1, int pageSize = 9)
+        {
+            var products = _productRepository.GetProductByBrand(brandId);
+
+            // Retrieve the brand's information
+            var brand = _brandRepository.Get(brandId);
+
+
+            var pagedProducts = products
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var productDataList = pagedProducts.Select(product =>
+            {
+                // Retrieve the first image for the product
+                var productImage = _productImagesRepository.GetByProductId(product.Id).FirstOrDefault();
+                string imageUrl = productImage?.imagePath;
+
+                return new ProductData
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Quentity = product.Quentity,
+                    CategoryId = product.CategoryId,
+                    ImageUrl = imageUrl,
+                };
+            }).ToList();
+
+            return Ok(new
+            {
+                TotalCount = products.Where(p => p.IsDeleted == false).Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(products.Where(p=>p.IsDeleted==false).Count() / (double)pageSize),
+                Products = productDataList
+            });
+        }
 
         [HttpPost]
         [Authorize(Roles = "brand")]
-        public async Task<IActionResult> PostProduct([FromForm] ProductData newProduct)
+        public async Task<IActionResult> PostProduct([FromForm] SetProduct newProduct)
         {
             if (ModelState.IsValid)
             {
@@ -202,7 +351,7 @@ namespace EcommercePro.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "brand")]
-        public async Task<IActionResult> Update(int id, [FromForm] ProductData updateProduct)
+        public async Task<IActionResult> Update(int id, [FromForm] SetProduct updateProduct)
         {
             if (ModelState.IsValid)
             {
@@ -240,7 +389,7 @@ namespace EcommercePro.Controllers
                                 }
                             }
                             List<ProductImages> images = this._fileService.GetAll(id);
-                            foreach(var image in images)
+                            foreach (var image in images)
                             {
                                 this._fileService.DeleteImage(image.imagePath);
                             }
@@ -258,40 +407,42 @@ namespace EcommercePro.Controllers
 
 
         [HttpDelete("{id}")]
-       [Authorize(Roles = "brand , admin")]
+        [Authorize(Roles = "brand , admin")]
         public IActionResult Delete(int id)
         {
             bool isdeleted = _productRepository.Delete(id);
             if (isdeleted)
             {
                 return Ok();
-                 
+
             }
             return BadRequest("The Product Not Deleted");
         }
 
-        //[HttpGet("ProductPagined")]
-        //public ActionResult<Result> ProductPagined(int page = 1, int pageSize = 9)
-        //{
+        
+        [HttpGet("prouctPaginedByBrand")]
+        public ActionResult<Result> ProductPaginedByBrand(int brandId, int page = 1, int pageSize = 9)
+        {
+            Result Result = this._productRepository.ProductPaginedByBrand(brandId, page, pageSize);
 
-            //    return this._productRepository.ProductPagined(page, pageSize);
-
-
-            //}
-            ////[HttpGet("prouctPaginedByBrand")]
-            //public ActionResult<Result> ProductPaginedByBrand(int brandId, int page = 1, int pageSize = 9)
-            //{
-            //   Result Result  = this._productRepository.ProductPaginedByBrand(brandId, page, pageSize);
-
-            //    return Result;
-
-
-
-            //}
-
-
+            return Result;
 
 
 
         }
+        [HttpGet("ProductsPagined")]
+        public ActionResult<Result> ProductsPagined(int page = 1, int pageSize = 6)
+        {
+            Result Result = this._productRepository.ProductPagined( page, pageSize);
+
+            return Result;
+
+
+
+        }
+
+
+
+
+    }
 }

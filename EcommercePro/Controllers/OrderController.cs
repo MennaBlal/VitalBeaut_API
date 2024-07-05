@@ -1,4 +1,5 @@
 ﻿using EcommercePro.Repositiories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,7 @@ namespace EcommercePro.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetOrderById(int id)
         {
             var order = await _orderRepository.GetOrderByIdAsync(id);
@@ -33,6 +35,7 @@ namespace EcommercePro.Controllers
         }
 
         [HttpGet("user/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetOrdersByUserId(string userId)
         {
             var orders = await _orderRepository.GetOrdersByUserIdAsync(userId);

@@ -13,7 +13,7 @@ namespace EcommercePro.DTO
          public int Quentity { get; set; }
         public int Discount { set; get; }
 
-        public List<string> images { get; set; } 
+        public string images { get; set; } 
          public string BrandName { get; set; }
         public string CategoryName { get; set; }
     }

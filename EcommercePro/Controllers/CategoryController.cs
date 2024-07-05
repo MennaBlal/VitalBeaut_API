@@ -81,7 +81,7 @@ namespace EcommercePro.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public IActionResult Delete(int id)
         {
             bool isdeleted = this._genaricService.Delete(id);

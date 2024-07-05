@@ -69,5 +69,18 @@ namespace EcommercePro.Controllers
             }
         }
 
+
+        [HttpDelete]
+        [Authorize(Roles = "admin")]
+        public IActionResult Delete(int reviewId)
+        {
+            bool isDeleted = this.WebsiteReviewRepo.Delete(reviewId);
+            if (isDeleted)
+            {
+                return Ok();
+            }
+            return BadRequest("Faild to Delete");
+        }
+
     }
 }

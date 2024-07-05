@@ -11,6 +11,22 @@ namespace EcommercePro.Repositiories
         {
             _dbContext = context;
         }
+
+        public bool Delete(int contactId)
+        {
+           
+                Contact contact = this._dbContext.Contacts.FirstOrDefault(contact => contact.Id == contactId);
+            if (contact != null)
+            {
+                this._dbContext.Contacts.Remove(contact);
+                this.Save();
+                return true;
+            }
+            return false;
+
+              
+        }
+
         public List<Contact> GetAll()
         {
             return _dbContext.Set<Contact>().ToList();
@@ -18,12 +34,12 @@ namespace EcommercePro.Repositiories
 
         public void Insert(Contact contact)
         {
-            if (contact == null)
+            if (contact != null)
             {
-                throw new ArgumentNullException(nameof(contact));
+                _dbContext.Add(contact);
+
             }
 
-            _dbContext.Add(contact);
 
         }
 

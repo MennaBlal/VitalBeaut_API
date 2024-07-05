@@ -7,6 +7,8 @@ namespace EcommercePro.Repositiories
         public List<Contact>GetAll();
         void Insert(Contact cotact);
         void Save();
+        public bool Delete(int contactId);
+
 
     }
 }

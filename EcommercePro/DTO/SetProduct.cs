@@ -1,10 +1,9 @@
 ﻿using EcommercePro.Models;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EcommercePro.DTO
 {
-    public class ProductData
+    public class SetProduct
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "The Name of Product is Reqiured")]
@@ -16,14 +15,10 @@ namespace EcommercePro.DTO
         public decimal Price { get; set; }
         [Required(ErrorMessage = "The Quantity of Product is Reqiured")]
         public int Quentity { get; set; }
+        public List<IFormFile>? formFiles { get; set; }
 
         [Required(ErrorMessage = "The Category of Product is Reqiured")]
         public int CategoryId { get; set; }
-        public List<string> ImageUrls { get; set; }
-
-        public string ImageUrl { get; set; } // Add this property
-
-
 
     }
 }

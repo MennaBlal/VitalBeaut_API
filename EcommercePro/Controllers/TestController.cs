@@ -9,9 +9,12 @@ namespace EcommercePro.Controllers
     public class TestController : ControllerBase
     {
         private IFileService FileService;
-        public TestController(IFileService _FileService) {
+        private IEmailService EmailService;
+        public TestController(IFileService _FileService , IEmailService emailService)
+        {
             this.FileService = _FileService;
-                }
+            EmailService = emailService;
+        }
         [HttpPost]
         public IActionResult uploadImage([FromForm] List<IFormFile> images)
         {
@@ -28,6 +31,14 @@ namespace EcommercePro.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+        [HttpPost("sendmail")]
+        public IActionResult SendEmail(string Email, string body)
+        {
+            this.EmailService.SendEmail(Email ,body);
+          
+                return Ok();
+            
         }
     }
 }

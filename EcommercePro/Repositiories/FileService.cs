@@ -1,8 +1,8 @@
-﻿using EcommercePro.Models;
+﻿
+using EcommercePro.Models;
 using EcommercePro.Repositiories;
-using Microsoft.AspNetCore.Hosting;
- 
-namespace ProductMiniApi.Repository.Implementation
+
+namespace EcommercePro.Repositiories
 {
     public class FileService : IFileService
     {

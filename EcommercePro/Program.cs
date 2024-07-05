@@ -1,14 +1,18 @@
+using EcommercePro.DTO;
 using EcommercePro.Hubs;
 using EcommercePro.Models;
 using EcommercePro.Repositiories;
 using EcommercePro.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
-using ProductMiniApi.Repository.Implementation;
 using Stripe;
+using Stripe.Terminal;
 using System.Text;
 
 public class Program
@@ -30,19 +34,33 @@ public class Program
         builder.Services.AddScoped<IGenaricService<Category>, GenericRepo<Category>>();
         
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
-        builder.Services.AddTransient<IFileService, ProductMiniApi.Repository.Implementation.FileService>();
+        builder.Services.AddTransient<IFileService,EcommercePro.Repositiories.FileService>();
         builder.Services.AddScoped<IBrand, BrandRepository>();
         builder.Services.AddScoped<IContact, RepoContact>();
         builder.Services.AddScoped<IWebsiteReview, WebsiteReviewRepo>();
         builder.Services.AddScoped<IwishList, WishListService>();
         builder.Services.AddScoped<IproductReview, ProductReviewService>();
         builder.Services.AddTransient<IEmailService, EmailService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
        
         builder.Services.AddScoped<IPaymentable, PaymentRepo>();
         builder.Services.AddScoped<ICart, CartRepository>();
         builder.Services.AddScoped<IOrder, OrderRepo>();
+        builder.Services.AddScoped<IProductImagesRepository,ProductImagesRepository>();
+
+
+        builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+        builder.Services.AddTransient<IUrlHelper>(x =>
+        {
+            var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+            var factory = x.GetRequiredService<IUrlHelperFactory>();
+            return factory.GetUrlHelper(actionContext);
+
+        });
         #endregion
 
+       
         builder.Services.AddDbContext<Context>(option =>
         {
             option.UseSqlServer(builder.Configuration.GetConnectionString("DC"));
@@ -61,9 +79,10 @@ public class Program
         #region Authentication
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>(option =>
         {
-            //option.SignIn.RequireConfirmedEmail = true;
+            option.SignIn.RequireConfirmedEmail = true;
         }
-        ).AddEntityFrameworkStores<Context>();
+        ).AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
+
 
         builder.Services.AddAuthentication(options =>
         {

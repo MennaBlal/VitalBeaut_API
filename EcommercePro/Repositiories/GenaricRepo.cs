@@ -50,6 +50,7 @@ namespace EcommercePro.Repositories
         public bool Delete(int id)
         {
             T existingEntity = _dbContext.Set<T>().Find(id);
+
             if (existingEntity != null && existingEntity is Product)
             {
                Product product = existingEntity as Product;
@@ -61,18 +62,17 @@ namespace EcommercePro.Repositories
                     return true;
 
                 }
-                else if(existingEntity !=null && existingEntity is Category)
+            }
+            else if (existingEntity != null && existingEntity is Category)
+            {
+                Category category = existingEntity as Category;
+                if (category != null)
                 {
-                    Category category = existingEntity as Category;
-                    if (category != null)
-                    {
-                        category.IsDeleted = true;
-                        this._dbContext.SaveChanges();
-                        return true;
-                    }
-
-
+                    category.IsDeleted = true;
+                    this._dbContext.SaveChanges();
+                    return true;
                 }
+
 
             }
             return false;

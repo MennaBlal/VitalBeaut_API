@@ -18,91 +18,90 @@ namespace EcommercePro.Repositiories
         public List<Product> GetProductByName(string name)
         {
            
-           return  _context.Products.Where(p => p.Name.Contains(name)).ToList();
+           return  _context.Products.Where(p => p.Name.Contains(name) && p.IsDeleted == false).ToList();
         }
 
         public List<Product> GetProductByPriceRange(decimal minPrice, decimal maxPrice)
         {
-            return _context.Products.Where(p => p.Price >= minPrice && p.Price <= maxPrice).ToList();
+            return _context.Products.Where(p => p.Price >= minPrice && p.Price <= maxPrice && p.IsDeleted == false).ToList();
         }
 
         public List<Product> GetProductByCategory(int categoryId)
         {
-            return _context.Products.Where(p => p.CategoryId == categoryId).ToList();
+            return _context.Products.Where(p => p.CategoryId == categoryId && p.IsDeleted == false).ToList();
         }
 
         public List<Product> GetProductByBrand(int brandId)
         {
-            return _context.Products.Where(p => p.BrandId == brandId).ToList();
+            return _context.Products.Where(p => p.BrandId == brandId && p.IsDeleted == false).ToList();
         }
 
-        // public Result ProductPagined(int pageIndex = 1, int pageSize = 9)
-        // {
-        //     Result Result = new Result();
 
-        //     var TotalCount = this._context.Products.Count();
-        //     var TotalPages = (int)Math.Ceiling((decimal)TotalCount / pageSize);
-        //     List <ProductShow>Products =  _context.Products.Where(p=>p.Quentity > 0).Include(p => p.Category).Include(p=>p.Brand)
-        //         .OrderByDescending(p=>p.CreatedDate)
-        //         .Select(p=>new ProductShow()
-        //         {
-        //             Id =p.Id,
-        //             Name =p.Name,
-        //             Price =p.Price,
-        //             Description=p.Description,
-        //             image=p.ImagePath,
-        //             Quentity=p.Quentity,
-        //             CategoryName=p.Category.Name,
-        //             BrandName=p.Brand.User.UserName
+        public Result ProductPaginedByBrand(int brandId, int pageIndex = 1, int pageSize = 9)
+        {
+            Result Result = new Result();
 
-        //         })
-        //         .Skip((pageIndex - 1)*pageSize)
-        //         .Take(pageSize)
-        //         .ToList();
+            var TotalCount = this._context.Products.Where(p => p.IsDeleted == false).Count();
+            var TotalPages = (int)Math.Ceiling((decimal)TotalCount / pageSize);
+            List<ProductDetails> Products = _context.Products.
+                Where(p => p.Quentity > 0 && p.BrandId == brandId && p.IsDeleted == false)
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p=>p.Images)
+                .Select(p => new ProductDetails()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Description = p.Description,
+                    images = (p.Images.FirstOrDefault()!=null)? p.Images.FirstOrDefault().imagePath:null,
+                    Quentity = p.Quentity,
+                    CategoryName = p.Category.Name,
+                    BrandName = p.Brand.User.UserName
 
-        //     Result.totalPages = TotalPages;
-        //     Result.data = Products;
-        //     Result.CurrentPage = pageIndex;
-        //     return Result;
+                })
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-        // }
-        //public Result ProductPaginedByBrand(int brandId, int pageIndex = 1, int pageSize = 9 )
-        // {
-        //     Result Result = new Result();
+            Result.totalPages = TotalPages;
+            Result.data = Products;
+            Result.CurrentPage = pageIndex;
+            return Result;
 
-        //     var TotalCount = this._context.Products.Count();
-        //     var TotalPages = (int)Math.Ceiling((decimal)TotalCount / pageSize);
-        //     List<ProductShow> Products = _context.Products.
-        //         Where(p => p.Quentity > 0 && p.BrandId == brandId)
-        //         .Include(p => p.Category)
-        //         .Include(p => p.Brand)
-        //         .Select(p => new ProductShow()
-        //         {
-        //             Id = p.Id,
-        //             Name = p.Name,
-        //             Price = p.Price,
-        //             Description = p.Description,
-        //             image = p.ImagePath,
-        //             Quentity = p.Quentity,
-        //             CategoryName = p.Category.Name,
-        //             BrandName = p.Brand.User.UserName
+        }
 
-        //         })
-        //         .Skip((pageIndex - 1) * pageSize)
-        //         .Take(pageSize)
-        //         .ToList();
+        public Result ProductPagined(int pageIndex=1, int pageSize=9)
+        {
+            Result Result = new Result();
 
-        //     Result.totalPages = TotalPages;
-        //     Result.data = Products;
-        //     Result.CurrentPage = pageIndex;
-        //     return Result;
+            var TotalCount = this._context.Products.Where(p=>p.IsDeleted==false).Count();
+            var TotalPages = (int)Math.Ceiling((decimal)TotalCount / pageSize);
+            List<ProductDetails> Products = _context.Products.
+                Where(p => p.Quentity > 0  && p.IsDeleted == false )
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Images)
+                .Select(p => new ProductDetails()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Description = p.Description,
+                    images = (p.Images.FirstOrDefault() != null) ? p.Images.FirstOrDefault().imagePath : null,
+                    Quentity = p.Quentity,
+                    CategoryName = p.Category.Name,
+                    BrandName = p.Brand.User.UserName
 
-        // }
+                })
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-
-
-
-
-
+            Result.totalPages = TotalPages;
+            Result.data = Products;
+            Result.CurrentPage = pageIndex;
+            return Result;
+        }
     }
 }

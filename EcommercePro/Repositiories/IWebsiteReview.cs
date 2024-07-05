@@ -8,6 +8,7 @@ namespace EcommercePro.Repositiories
         public List<WebsiteReview> GetAll();
         void Insert(WebsiteReview websiteReview);
          void Save();
+        public bool Delete(int ReviewId);
 
     }
 }

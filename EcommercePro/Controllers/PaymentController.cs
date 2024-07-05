@@ -1,6 +1,7 @@
 ﻿using EcommercePro.DTO;
 using EcommercePro.Models;
 using EcommercePro.Repositiories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
@@ -22,6 +23,7 @@ namespace EcommercePro.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post([FromBody] PaymentDto paymentDto)
         {
             if (!ModelState.IsValid)

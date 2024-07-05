@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        public Task<string> SendEmail(string Email, string Meassage);
+        public Task<string> SendEmail(string Email , string Meassage);
     }
 }
