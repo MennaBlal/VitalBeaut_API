@@ -175,9 +175,8 @@ namespace EcommercePro.Controllers
 
             return Ok(new
             {
-                TotalCount = products.Where(p => p.IsDeleted == false),
+                TotalCount = products.Where(p => p.IsDeleted == false).Count(),
                 PageNumber = pageNumber,
-                PageSize = pageSize,
                 TotalPages = (int)Math.Ceiling(products.Where(p => p.IsDeleted == false).Count() / (double)pageSize),
                 Products = productDataList
             });
@@ -227,8 +226,10 @@ namespace EcommercePro.Controllers
             {
                 // Retrieve the first image for the product
                 var productImage = _productImagesRepository.GetByProductId(product.Id).FirstOrDefault();
-                string imageUrl = productImage.imagePath;
+               
+                    string imageUrl = productImage?.imagePath;
 
+                
                 return new ProductData
                 {
                     Id = product.Id,

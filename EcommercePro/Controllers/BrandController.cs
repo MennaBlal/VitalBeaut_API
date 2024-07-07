@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 
 namespace EcommercePro.Controllers
 {
@@ -26,7 +27,7 @@ namespace EcommercePro.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "brand")]
-        public async Task<IActionResult> Update(int id , SetBrandData updateData)
+        public async Task<IActionResult> Update(int id ,[FromForm] SetBrandData updateData)
         {
             if (ModelState.IsValid)
             {
@@ -38,6 +39,7 @@ namespace EcommercePro.Controllers
                         updateData.logoImage = fileResult.Item2;
                     }
                 }
+                
                 if (updateData.formFile2 != null)
                 {
                     var fileResult = fileService.SaveImage(updateData.formFile2);
@@ -57,6 +59,11 @@ namespace EcommercePro.Controllers
 
                     }
                 }
+                else
+                {
+                    updateData.logoImage = OldBrandImage;
+
+                }
                 if (updateData.formFile2 != null)
                 {
                     if (OldCommercialRegistrationImage != null)
@@ -65,6 +72,11 @@ namespace EcommercePro.Controllers
 
                     }
                 }
+                else
+                {
+                    updateData.commercialRegistrationImage = OldCommercialRegistrationImage;
+                }
+
                 bool isUpdate = this._BrandRepository.Update(id, new Brand()
                 {
                   commercialRegistrationImage = updateData.commercialRegistrationImage,
@@ -81,7 +93,25 @@ namespace EcommercePro.Controllers
                 user.UserName = updateData.BrandName;
                 user.PhoneNumber = updateData.phonenumber1;
                 user.Email = updateData.email;
-                user.PasswordHash = updateData.password;
+                user.Image = updateData.logoImage;
+                if (updateData.password != null)
+                {
+
+                    string resetToken = await this.userManager.GeneratePasswordResetTokenAsync(user);
+
+                    IdentityResult result1 = await this.userManager.ResetPasswordAsync(user, resetToken, updateData.password);
+
+                    if (result1.Succeeded)
+                    {
+                        return Ok();
+                    }
+                    else
+                    {
+                        return BadRequest(result1.Errors);
+                    }
+
+
+                }
                  
                IdentityResult result =  await this.userManager.UpdateAsync(user);
                 if (result.Succeeded)

@@ -10,6 +10,8 @@ namespace EcommercePro.Repositiories
         Task<IEnumerable<OrderDetailsDto>> GetAllOrdersAsync();
         Task<OrderDetailsDto> GetOrderByIdAsync(int id);
         Task<IEnumerable<OrderDetailsDto>> GetOrdersByUserIdAsync(string userId);
+        Task SaveOrderItemAsync(OrderItem orderitem);
+
 
     }
 }

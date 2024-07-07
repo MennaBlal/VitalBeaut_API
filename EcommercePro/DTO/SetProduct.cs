@@ -8,7 +8,7 @@ namespace EcommercePro.DTO
         public int Id { get; set; }
         [Required(ErrorMessage = "The Name of Product is Reqiured")]
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public int Discount { set; get; } = 0;
         [Required(ErrorMessage = "The Price of Product is Reqiured")]
         [ProductPrice]

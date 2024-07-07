@@ -6,15 +6,8 @@ namespace EcommercePro.Models
     public class Order
     {
         public int Id { set; get; }
-        [Required(ErrorMessage = "The Quentity is Reqiured")]
-        public int Quentity { set; get; }
         [Required(ErrorMessage = "The Status is Reqiured")]
         public string Status { set; get; }//Inprocessing - completed
-
-        [ForeignKey("product")]
-        public int productId { set; get; }
-
-        public Product? product { set; get; }
 
         [ForeignKey("User")]
         public string UserId { set; get; }
@@ -25,5 +18,8 @@ namespace EcommercePro.Models
         public Payment? Payment { set; get; }
 
         public DateOnly? CreatedDate { get; set; }
+
+        public List<OrderItem> OrderItems { get; set; }
+
     }
 }

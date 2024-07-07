@@ -10,6 +10,8 @@ namespace EcommercePro.Models
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImages> ProductImages { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Contact> Contacts { get; set; }
          public DbSet<Payment> payments { get; set; }
@@ -30,6 +32,21 @@ namespace EcommercePro.Models
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18, 2)");
+
+            modelBuilder.Entity<Order>()
+             .HasMany(o => o.OrderItems)
+             .WithOne(oi => oi.Order)
+             .HasForeignKey(oi => oi.OrderId);
+
+                    modelBuilder.Entity<OrderItem>()
+                        .HasOne(oi => oi.Product)
+                        .WithMany()
+                        .HasForeignKey(oi => oi.ProductId);
+
+            // Configure Price precision and scale for OrderItem model
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.Price)
+                .HasColumnType("decimal(18,2)");
         }
 
     }

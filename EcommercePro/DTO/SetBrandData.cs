@@ -10,8 +10,7 @@ namespace EcommercePro.DTO
 
         [Required(ErrorMessage = "The UserName is Required")]
         public string BrandName { set; get; }
-        [Required(ErrorMessage = "The Password is Required")]
-        public string password { set; get; }
+        public string? password { set; get; }
         [DataType(DataType.EmailAddress)]
         [Required(ErrorMessage = "The Email is Required")]
         public string email { set; get; }
@@ -24,7 +23,7 @@ namespace EcommercePro.DTO
         [Required(ErrorMessage ="Enter The Tax Number")]
         public string TaxNumber { set; get; }
 
-        public string Address { set; get; }
+        public string? Address { set; get; }
         public string? logoImage { set; get; }
 
         [NotMapped]
@@ -33,9 +32,7 @@ namespace EcommercePro.DTO
          public string? commercialRegistrationImage { set; get; }
 
         [NotMapped]
-        [Required(ErrorMessage = "Enter the copy of commercial Registration")]
-
-        public IFormFile formFile2 { set; get; }
+        public IFormFile? formFile2 { set; get; }
 
     }
 }

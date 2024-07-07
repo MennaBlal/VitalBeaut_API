@@ -15,25 +15,44 @@ namespace EcommercePro.Repositiories
         }
         public async Task SaveOrderAsync(Order order)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine($"Error saving order: {ex.Message}");
+                throw;
+            }
+        }
+        public async Task SaveOrderItemAsync(OrderItem orderitem)
+        {
+            try
+            {
+                orderitem.Id = 0;
+                _context.OrderItems.Add(orderitem);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine($"Error saving order item: {ex.Message}");
+                throw;
+            }
         }
         public async Task<IEnumerable<OrderDetailsDto>> GetAllOrdersAsync()
         {
             return await _context.Orders
-                .Include(o => o.product)
-                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Images)
                 .Include(o => o.Payment)
                 .Select(o => new OrderDetailsDto
                 {
-                    Id = o.Id,
-                    Quantity = o.Quentity,
+                    // Order specific properties
+                    OrderId = o.Id,
                     Status = o.Status,
-                    ProductId = o.productId,
-                    ProductName = o.product.Name,
-                    ProductPrice = o.product.Price,
-                    ProductDescription = o.product.Description,
-                    UserId = o.UserId,
+                    CreatedDate = o.CreatedDate,
                     PaymentId = o.PaymentId,
                     PaymentFullName = o.Payment.FullName,
                     PaymentEmail = o.Payment.Email,
@@ -41,7 +60,15 @@ namespace EcommercePro.Repositiories
                     PaymentCity = o.Payment.City,
                     PaymentState = o.Payment.State,
                     PaymentStreet = o.Payment.Street,
-                    CreatedDate = o.CreatedDate
+                    OrderItems = o.OrderItems.Select(oi => new OrderItemDetailsDto
+                    {
+                        Quantity = oi.Quantity,
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        ProductImage = oi.Product.Images.FirstOrDefault().imagePath,  // Select first image
+                        ProductPrice = oi.Product.Price,
+                        ProductDescription = oi.Product.Description
+                    }).ToList()
                 })
                 .ToListAsync();
         }
@@ -49,20 +76,17 @@ namespace EcommercePro.Repositiories
         public async Task<OrderDetailsDto> GetOrderByIdAsync(int id)
         {
             return await _context.Orders
-                .Include(o => o.product)
-                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Images)
                 .Include(o => o.Payment)
                 .Where(o => o.Id == id)
                 .Select(o => new OrderDetailsDto
                 {
-                    Id = o.Id,
-                    Quantity = o.Quentity,
+                    // Order specific properties
+                    OrderId = o.Id,
                     Status = o.Status,
-                    ProductId = o.productId,
-                    ProductName = o.product.Name,
-                    ProductPrice = o.product.Price,
-                    ProductDescription = o.product.Description,
-                    UserId = o.UserId,
+                    CreatedDate = o.CreatedDate,
                     PaymentId = o.PaymentId,
                     PaymentFullName = o.Payment.FullName,
                     PaymentEmail = o.Payment.Email,
@@ -70,7 +94,15 @@ namespace EcommercePro.Repositiories
                     PaymentCity = o.Payment.City,
                     PaymentState = o.Payment.State,
                     PaymentStreet = o.Payment.Street,
-                    CreatedDate = o.CreatedDate
+                    OrderItems = o.OrderItems.Select(oi => new OrderItemDetailsDto
+                    {
+                        Quantity = oi.Quantity,
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        ProductImage = oi.Product.Images.FirstOrDefault().imagePath,  // Select first image
+                        ProductPrice = oi.Product.Price,
+                        ProductDescription = oi.Product.Description
+                    }).ToList()
                 })
                 .FirstOrDefaultAsync();
         }
@@ -78,20 +110,17 @@ namespace EcommercePro.Repositiories
         public async Task<IEnumerable<OrderDetailsDto>> GetOrdersByUserIdAsync(string userId)
         {
             return await _context.Orders
-                .Include(o => o.product)
-                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Images)
                 .Include(o => o.Payment)
                 .Where(o => o.UserId == userId)
                 .Select(o => new OrderDetailsDto
                 {
-                    Id = o.Id,
-                    Quantity = o.Quentity,
+                    // Order specific properties
+                    OrderId = o.Id,
                     Status = o.Status,
-                    ProductId = o.productId,
-                    ProductName = o.product.Name,
-                    ProductPrice = o.product.Price,
-                    ProductDescription = o.product.Description,
-                    UserId = o.UserId,
+                    CreatedDate = o.CreatedDate,
                     PaymentId = o.PaymentId,
                     PaymentFullName = o.Payment.FullName,
                     PaymentEmail = o.Payment.Email,
@@ -99,7 +128,15 @@ namespace EcommercePro.Repositiories
                     PaymentCity = o.Payment.City,
                     PaymentState = o.Payment.State,
                     PaymentStreet = o.Payment.Street,
-                    CreatedDate = o.CreatedDate
+                    OrderItems = o.OrderItems.Select(oi => new OrderItemDetailsDto
+                    {
+                        Quantity = oi.Quantity,
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        ProductImage = oi.Product.Images.FirstOrDefault().imagePath,  // Select first image
+                        ProductPrice = oi.Product.Price,
+                        ProductDescription = oi.Product.Description
+                    }).ToList()
                 })
                 .ToListAsync();
         }

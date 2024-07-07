@@ -12,7 +12,6 @@ namespace EcommercePro.Controllers
     [ApiController]
     public class WebsiteReviewController : ControllerBase
     {
-        WebsiteReviewRepo WebsiteReviewRepo;
         IWebsiteReview websiteReview;
 
         public WebsiteReviewController(IWebsiteReview WebsiteReview1)
@@ -27,6 +26,7 @@ namespace EcommercePro.Controllers
 
             List<DisplayReviews> reviews = reviewList.OrderBy(r=>r.CreatedDate).Select(review => new DisplayReviews()
             {
+                id=review.Id,
                 Comment=review.Comment,
                 userimage=review.User.Image,
                 username=review.User.UserName,
@@ -74,7 +74,7 @@ namespace EcommercePro.Controllers
         [Authorize(Roles = "admin")]
         public IActionResult Delete(int reviewId)
         {
-            bool isDeleted = this.WebsiteReviewRepo.Delete(reviewId);
+            bool isDeleted = this.websiteReview.Delete(reviewId);
             if (isDeleted)
             {
                 return Ok();

@@ -5,6 +5,7 @@ namespace EcommercePro.DTO
 {
     public class DisplayReviews
     {
+        public int id { get; set; }
         public int Rating { get; set; }
         public string Comment { set; get; }
   

@@ -41,7 +41,7 @@ namespace EcommercePro.Repositiories
         {
             Result Result = new Result();
 
-            var TotalCount = this._context.Products.Where(p => p.IsDeleted == false).Count();
+            var TotalCount = this._context.Products.Where(p => p.IsDeleted == false && p.BrandId == brandId).Count();
             var TotalPages = (int)Math.Ceiling((decimal)TotalCount / pageSize);
             List<ProductDetails> Products = _context.Products.
                 Where(p => p.Quentity > 0 && p.BrandId == brandId && p.IsDeleted == false)
@@ -57,7 +57,8 @@ namespace EcommercePro.Repositiories
                     images = (p.Images.FirstOrDefault()!=null)? p.Images.FirstOrDefault().imagePath:null,
                     Quentity = p.Quentity,
                     CategoryName = p.Category.Name,
-                    BrandName = p.Brand.User.UserName
+                    BrandName = p.Brand.User.UserName,
+                    Discount=p.Discount
 
                 })
                 .Skip((pageIndex - 1) * pageSize)
@@ -91,7 +92,9 @@ namespace EcommercePro.Repositiories
                     images = (p.Images.FirstOrDefault() != null) ? p.Images.FirstOrDefault().imagePath : null,
                     Quentity = p.Quentity,
                     CategoryName = p.Category.Name,
-                    BrandName = p.Brand.User.UserName
+                    BrandName = p.Brand.User.UserName,
+                    Discount = p.Discount
+
 
                 })
                 .Skip((pageIndex - 1) * pageSize)

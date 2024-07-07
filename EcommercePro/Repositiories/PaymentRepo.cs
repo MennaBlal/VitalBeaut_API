@@ -1,4 +1,5 @@
 ﻿using EcommercePro.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
 
@@ -9,7 +10,7 @@ namespace EcommercePro.Repositiories
         private readonly StripeSettings _stripeSettings;
         private readonly Context _context;
 
-        public PaymentRepo(IOptions<StripeSettings> stripeSettings , Context context)
+        public PaymentRepo(IOptions<StripeSettings> stripeSettings, Context context)
         {
             _stripeSettings = stripeSettings.Value;
             _context = context;
@@ -34,8 +35,17 @@ namespace EcommercePro.Repositiories
         // Add method to save payment to the database
         public async Task SavePaymentAsync(Payment payment)
         {
-            _context.payments.Add(payment);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.payments.Add(payment);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the exception details for debugging
+                Console.WriteLine($"Error saving payment: {ex.Message}");
+                throw; // Re-throw the exception to propagate it upwards
+            }
         }
 
     }

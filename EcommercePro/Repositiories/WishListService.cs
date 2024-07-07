@@ -54,6 +54,7 @@ namespace EcommercePro.Repositiories
                  productName=W.product.Name,
                  productId=W.productId,
                  price=W.product.Price,
+                 productImage=(W.product.Images.FirstOrDefault() != null)? W.product.Images.FirstOrDefault().imagePath:null,
                  //productImage=W.product.ImagePath
 
 

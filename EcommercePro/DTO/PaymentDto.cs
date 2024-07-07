@@ -14,6 +14,7 @@
         public int productId { get; set; }
         public int Quentity { get; set; }
         public int Amount { get; set; }
+        public List<OrderItemDto> OrderItems { get; set; }
 
 
     }

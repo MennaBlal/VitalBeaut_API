@@ -33,7 +33,7 @@ namespace EcommercePro.Controllers
                     UserId = c.UserId,
                     CreatedDate = c.CreatedDate,
                     ProductName = c.product.Name,
-                    //ProductImage = c.product.ImagePath,  // Assuming Product has an Image property
+                    ProductImage = c.product.Images.FirstOrDefault().imagePath, // Assuming Product has an Image property
                     ProductPrice = c.product.Price   // Assuming Product has a Price property
                 }).ToList();
 
@@ -59,7 +59,7 @@ namespace EcommercePro.Controllers
                 UserId = cart.UserId,
                 CreatedDate = cart.CreatedDate,
                 ProductName = cart.product.Name,
-                //ProductImage = cart.product.ImagePath,
+                ProductImage = cart.product.Images.FirstOrDefault().imagePath,
                 ProductPrice = cart.product.Price
             };
 
@@ -89,7 +89,7 @@ namespace EcommercePro.Controllers
             // Retrieve the product details for the created cart item
             var createdCart = _cartRepository.GetCartWithProductDetails(cart.Id);
             cartData.ProductName = createdCart.product.Name;
-            //cartData.ProductImage = createdCart.product.ImagePath;
+            cartData.ProductImage = createdCart.product.Images.FirstOrDefault().imagePath;
             cartData.ProductPrice = createdCart.product.Price;
 
             return CreatedAtAction("GetCart", new { id = cartData.Id }, cartData);
@@ -123,7 +123,7 @@ namespace EcommercePro.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteCart(int id)
         {
-            if (!_cartRepository.Delete(id))
+            if (!_cartRepository.DeleteCart(id))
             {
                 return NotFound();
             }

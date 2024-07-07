@@ -66,8 +66,7 @@ namespace EcommercePro.Controllers
 
         [HttpPost]
         [Authorize(Roles = "admin")]
-
-        public async Task<IActionResult> Add([FromForm] CategoryData newCategory)
+       public async Task<IActionResult> Add([FromForm] CategoryData newCategory)
         {
             if (ModelState.IsValid)
             {

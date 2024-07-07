@@ -6,6 +6,7 @@ namespace EcommercePro.Repositiories
     {
         IEnumerable<Cart> GetAllCartsWithProductDetails();
         Cart GetCartWithProductDetails(int id);
+        bool DeleteCart(int id);
     }
     
 }
