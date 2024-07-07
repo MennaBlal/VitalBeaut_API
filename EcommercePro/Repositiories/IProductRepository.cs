@@ -12,7 +12,5 @@ namespace EcommercePro.Repositiories
         List<Product> GetProductByBrand(int brandId);
         Result ProductPagined(int pageIndex, int pageSize);
         Result ProductPaginedByBrand(int brandId ,int pageIndex, int pageSize);
-
-
     }
 }

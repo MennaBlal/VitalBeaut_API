@@ -8,6 +8,7 @@ namespace EcommercePro.DTO
         public decimal TotalSales { get; set; }
         public decimal TotalProfitBeforeAdmin { get; set; }
         public decimal TotalProfitAfterAdmin { get; set; }
+        public int  UserCount { get; set; }
         public int ProductsSold { get; set; }
         public List<ProductSalesDetailDTO> ProductSalesDetails { get; set; }
         public List<ProductSalesDetailDTO> TopSellingProducts { get; set; }

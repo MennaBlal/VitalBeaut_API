@@ -106,5 +106,6 @@ namespace EcommercePro.Repositiories
             Result.CurrentPage = pageIndex;
             return Result;
         }
+        
     }
 }

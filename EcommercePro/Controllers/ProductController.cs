@@ -143,8 +143,6 @@ namespace EcommercePro.Controllers
             return productData;
         }
 
-
-
         [HttpGet("search/byname")]
         public ActionResult GetProductByName(string name, int pageNumber = 1, int pageSize = 9)
         {

@@ -15,12 +15,14 @@ namespace EcommercePro.Controllers
         private readonly IPaymentable _paymentRepository;
         private readonly IOrder _orderRepo;
         private readonly IProductRepository _productRepo;
+        private readonly Context _context;
 
-        public PaymentController(IPaymentable paymentRepository, IOrder orderRepo, IProductRepository productRepo)
+        public PaymentController(IPaymentable paymentRepository, IOrder orderRepo, IProductRepository productRepo , Context context)
         {
             _paymentRepository = paymentRepository;
             _orderRepo = orderRepo;
             _productRepo = productRepo;
+            _context = context;
         }
 
         [HttpPost]
@@ -70,10 +72,6 @@ namespace EcommercePro.Controllers
 
                 await _orderRepo.SaveOrderAsync(order);
 
-                foreach (var orderItem in orderItems)
-                {
-                    orderItem.OrderId = order.Id;
-                }
 
                 foreach (var orderItem in orderItems)
                 {
@@ -102,5 +100,6 @@ namespace EcommercePro.Controllers
                 return StatusCode(500, new { error = e.Message });
             }
         }
+
     }
 }

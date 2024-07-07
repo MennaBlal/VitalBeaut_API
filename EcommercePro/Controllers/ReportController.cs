@@ -23,29 +23,42 @@ namespace EcommercePro.Controllers
         [HttpGet("admin-sales-report/{month}/{year}")]
         public async Task<ActionResult<List<AdminSalesReportDto>>> GetAdminSalesReport(int month, int year)
         {
-            var brands = await _context.Brands.Include(b => b.User)
-       .ToListAsync();
+            var brands = await _context.Brands.Include(b => b.User).ToListAsync();
 
             var report = new List<AdminSalesReportDto>();
             decimal totalAdminProfit = 0;
 
             foreach (var brand in brands)
             {
-                var totalSales = await _context.OrderItems
-                    .Where(oi => oi.Product.BrandId == brand.Id && oi.Order.Status == "completed" &&
-                                 oi.Order.CreatedDate.HasValue && oi.Order.CreatedDate.Value.Month == month &&
+                var brandOrders = await _context.OrderItems
+                    .Include(oi => oi.Order)
+                    .Where(oi => oi.Product.BrandId == brand.Id &&
+                                 oi.Order.Status == "completed" &&
+                                 oi.Order.CreatedDate.HasValue &&
+                                 oi.Order.CreatedDate.Value.Month == month &&
                                  oi.Order.CreatedDate.Value.Year == year)
-                    .SumAsync(oi => oi.Quantity * oi.Price);
+                    .ToListAsync();
 
-                var adminProfit = totalSales * 0.15m;
-                var totalBrandProfit = totalSales * 0.85m;
-                totalAdminProfit += adminProfit;
+                decimal brandTotalSales = 0;
+                decimal brandAdminProfit = 0;
+
+                foreach (var orderItem in brandOrders)
+                {
+                    decimal productTotalSales = orderItem.Quantity * (orderItem.Price * 0.85m); // Reduce price by 15%
+                    decimal productAdminProfit = orderItem.Quantity * (orderItem.Price * 0.15m); // Admin profit is 15% of original price
+
+                    brandTotalSales += productTotalSales;
+                    brandAdminProfit += productAdminProfit;
+                }
+
+                var totalBrandProfit = brandTotalSales - brandAdminProfit;
+                totalAdminProfit += brandAdminProfit;
 
                 report.Add(new AdminSalesReportDto
                 {
                     BrandName = brand.User?.UserName ?? "Unknown",
-                    SalesAmount = totalSales,
-                    AdminProfit = adminProfit,
+                    SalesAmount = brandTotalSales,
+                    AdminProfit = brandAdminProfit,
                     TotalBrandProfit = totalBrandProfit,
                 });
             }
@@ -71,55 +84,70 @@ namespace EcommercePro.Controllers
                 return NotFound();
             }
 
-            var orderItems = await _context.OrderItems
+            var brandOrders = await _context.OrderItems
                 .Include(oi => oi.Product)
-                .Where(oi => oi.Product.BrandId == brandId && oi.Order.Status == "completed" && oi.Order.CreatedDate.HasValue && oi.Order.CreatedDate.Value.Month == month && oi.Order.CreatedDate.Value.Year == year)
+                .Include(oi => oi.Order)
+                .Where(oi => oi.Product.BrandId == brandId &&
+                             oi.Order.Status == "completed" &&
+                             oi.Order.CreatedDate.HasValue &&
+                             oi.Order.CreatedDate.Value.Month == month &&
+                             oi.Order.CreatedDate.Value.Year == year)
                 .ToListAsync();
+
+            var userCount = await _context.Orders
+      .Where(o => o.OrderItems.Any(oi => oi.Product.BrandId == brandId) &&
+                  o.Status == "completed" &&
+                  o.CreatedDate.HasValue &&
+                  o.CreatedDate.Value.Month == month &&
+                  o.CreatedDate.Value.Year == year)
+      .Select(o => o.UserId)
+      .Distinct()
+      .CountAsync();
 
             var report = new BrandSalesReportDto
             {
                 Month = new DateTime(year, month, 1).ToString("MMMM"),
                 Year = year,
+                UserCount = userCount, // Include user count in the report
                 ProductSalesDetails = new List<ProductSalesDetailDTO>()
             };
 
-            decimal totalSales = 0;
-            int totalProductsSold = 0;
+            decimal brandTotalSales = 0;
+            decimal brandAdminProfit = 0;
 
-            foreach (var productGroup in orderItems.GroupBy(oi => oi.Product))
+            foreach (var orderItem in brandOrders)
             {
-                var productSales = productGroup.Sum(oi => oi.Quantity * oi.Price);
-                var productQuantitySold = productGroup.Sum(oi => oi.Quantity);
+                decimal productTotalSales = orderItem.Quantity * (orderItem.Price * 0.85m); // Reduce price by 15%
+                decimal productAdminProfit = orderItem.Quantity * (orderItem.Price * 0.15m); // Admin profit is 15% of original price
 
-                totalSales += productSales;
-                totalProductsSold += productQuantitySold;
+                brandTotalSales += productTotalSales;
+                brandAdminProfit += productAdminProfit;
 
-                if (productSales > 0)
+                if (productTotalSales > 0)
                 {
                     report.ProductSalesDetails.Add(new ProductSalesDetailDTO
                     {
-                        ProductName = productGroup.Key.Name,
-                        QuantitySold = productQuantitySold,
-                        TotalSales = productSales,
-                        ProfitPercentage = 0
+                        ProductName = orderItem.Product.Name,
+                        QuantitySold = orderItem.Quantity,
+                        TotalSales = productTotalSales,
+                        ProfitPercentage = (productTotalSales / brandTotalSales) * 100
                     });
                 }
             }
-            foreach (var productDetail in report.ProductSalesDetails)
-            {
-                productDetail.ProfitPercentage = (productDetail.TotalSales / totalSales) * 100;
-            }
-            report.TotalSales = totalSales;
-            report.TotalProfitBeforeAdmin = totalSales;
-            report.TotalProfitAfterAdmin = totalSales * 0.85m;
-            report.ProductsSold = totalProductsSold;
+
+            report.TotalSales = brandTotalSales;
+            report.TotalProfitBeforeAdmin = brandTotalSales;
+            report.TotalProfitAfterAdmin = brandTotalSales - brandAdminProfit;
+            report.ProductsSold = brandOrders.Sum(oi => oi.Quantity);
+            report.UserCount = userCount;
             report.TopSellingProducts = report.ProductSalesDetails
-                .OrderByDescending(p => p.ProfitPercentage)
+                .OrderByDescending(p => p.QuantitySold)
                 .Take(2)
                 .ToList();
 
             return Ok(report);
         }
+
         [HttpGet("genaral-calculation")]
         public IActionResult Result()
         {
@@ -144,12 +172,6 @@ namespace EcommercePro.Controllers
                 new {products = products }
                 );
         }
-
-
-
-
-
-
     }
 
 
